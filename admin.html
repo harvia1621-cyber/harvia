@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harvia Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&family=Cormorant+Garamond:wght@700&family=Dancing+Script:wght@700&family=Pacifico&family=Raleway:wght@700&family=Poppins:wght@700&family=Montserrat:wght@700&family=Nunito:wght@700&family=Quicksand:wght@700&family=Cinzel:wght@400;700&family=Lobster&family=Josefin+Sans:wght@700&family=Great+Vibes&family=Merriweather:wght@700&family=Roboto+Slab:wght@700&family=EB+Garamond:wght@700&family=Libre+Baskerville:wght@700&family=DM+Serif+Display:ital@0;1&family=Satisfy&family=Philosopher:wght@700&family=Italiana&family=Bodoni+Moda:wght@700&family=Gloock&family=Crimson+Pro:wght@700&family=Jost:wght@700&family=DM+Sans:wght@700&family=Plus+Jakarta+Sans:wght@700&family=Outfit:wght@700&family=Inter:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--primary:#7c3aed;--secondary:#a78bfa;--accent:#f0e6ff;--text:#1a1a2e;--text-light:#6b6b8a;--bg:#f8f7ff;--danger:#f43f5e;--success:#10b981;--warning:#f59e0b;--font-head:'Playfair Display',serif;--font-body:'Lato',sans-serif;--radius:14px;--shadow:0 4px 20px rgba(124,58,237,0.1)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text)}
+
+    /* LOGIN */
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2d1b69)}
+    .login-box{background:white;border-radius:24px;padding:3rem;width:380px;max-width:95vw;box-shadow:0 30px 80px rgba(0,0,0,0.3);text-align:center}
+    .login-logo{font-family:var(--font-head);font-size:2rem;color:var(--primary);font-style:italic;margin-bottom:0.3rem}
+    .lf{margin-bottom:1.2rem;text-align:left}
+    .lf label{display:block;font-size:0.82rem;font-weight:700;margin-bottom:0.5rem;color:var(--text-light);text-transform:uppercase;letter-spacing:1px}
+    .lf input{width:100%;border:2px solid #e5e7eb;border-radius:10px;padding:0.85rem 1rem;font-family:var(--font-body);font-size:1rem;outline:none;transition:border-color 0.2s}
+    .lf input:focus{border-color:var(--primary)}
+    .btn-login{width:100%;background:var(--primary);color:white;border:none;padding:1rem;border-radius:12px;font-family:var(--font-body);font-size:1rem;font-weight:700;cursor:pointer;margin-top:0.5rem;transition:all 0.2s}
+    .btn-login:hover{background:#6d28d9}
+    .lerr{color:var(--danger);font-size:0.85rem;margin-top:0.8rem;display:none}
+
+    /* LAYOUT */
+    .dash{display:none;min-height:100vh}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:245px;background:#1a1a2e;color:white;z-index:100;overflow-y:auto;display:flex;flex-direction:column;transition:transform 0.3s}
+    .sb-logo{padding:1.4rem;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .sb-logo span{font-family:var(--font-head);font-size:1.5rem;color:var(--secondary);font-style:italic}
+    .sb-logo small{display:block;font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:0.2rem}
+    .sb-nav{padding:0.8rem 0;flex:1}
+    .nav-sec{padding:0.5rem 1.4rem;font-size:0.68rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:2px;margin-top:0.8rem}
+    .ni{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.4rem;cursor:pointer;transition:all 0.2s;font-size:0.88rem;color:rgba(255,255,255,0.65);border-left:3px solid transparent;text-decoration:none;user-select:none}
+    .ni:hover,.ni.active{background:rgba(167,139,250,0.15);color:white;border-left-color:var(--secondary)}
+    .ni span{font-size:1rem}
+    .sb-foot{padding:1.2rem;border-top:1px solid rgba(255,255,255,0.1)}
+    .sb-foot a{display:block;text-align:center;color:rgba(255,255,255,0.45);font-size:0.82rem;text-decoration:none;margin-bottom:0.8rem;transition:color 0.2s}
+    .sb-foot a:hover{color:white}
+    .btn-logout{width:100%;background:rgba(244,63,94,0.2);color:#f43f5e;border:1px solid rgba(244,63,94,0.3);padding:0.65rem;border-radius:10px;cursor:pointer;font-family:var(--font-body);font-size:0.88rem;transition:all 0.2s}
+    .btn-logout:hover{background:rgba(244,63,94,0.3)}
+    .main{margin-left:245px;padding:2rem;min-height:100vh}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+    .topbar h1{font-family:var(--font-head);font-size:1.7rem}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:1.2rem;margin-bottom:2rem}
+    .sc{background:white;border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow)}
+    .sc-icon{font-size:1.7rem;margin-bottom:0.4rem}
+    .sc-num{font-family:var(--font-head);font-size:1.8rem;color:var(--primary)}
+    .sc-lbl{font-size:0.8rem;color:var(--text-light)}
+
+    /* PANEL */
+    .panel{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem}
+    .ph{padding:1.2rem 1.5rem;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem}
+    .ph h2{font-family:var(--font-head);font-size:1.2rem}
+    .pb{padding:1.5rem}
+    .tc{display:none}
+    .tc.active{display:block}
+
+    /* BUTTONS */
+    .btn{padding:0.6rem 1.2rem;border-radius:8px;border:none;cursor:pointer;font-family:var(--font-body);font-size:0.88rem;font-weight:700;transition:all 0.2s}
+    .bp{background:var(--primary);color:white}.bp:hover{background:#6d28d9}
+    .bd{background:var(--danger);color:white}.bd:hover{background:#e11d48}
+    .bs{background:var(--success);color:white}.bs:hover{background:#059669}
+    .bw{background:#f59e0b;color:white}.bw:hover{background:#d97706}
+    .bo{background:transparent;border:2px solid var(--primary);color:var(--primary)}.bo:hover{background:var(--accent)}
+    .btn-sm{padding:0.35rem 0.75rem;font-size:0.78rem}
+
+    /* FORMS */
+    .af{display:grid;gap:1rem}
+    .r2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+    .fg{display:flex;flex-direction:column;gap:0.4rem}
+    .fg label{font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px}
+    .fg input,.fg select,.fg textarea{border:2px solid #e5e7eb;border-radius:10px;padding:0.7rem 0.9rem;font-family:var(--font-body);font-size:0.95rem;outline:none;transition:border-color 0.2s;width:100%}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary)}
+    .fg textarea{resize:vertical;min-height:80px}
+    .fg small{color:var(--text-light);font-size:0.77rem}
+
+    /* TABLE */
+    .ptable{width:100%;border-collapse:collapse;font-size:0.86rem}
+    .ptable th{text-align:left;padding:0.75rem 1rem;background:var(--bg);font-size:0.73rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);border-bottom:1px solid #e5e7eb}
+    .ptable td{padding:0.85rem 1rem;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+    .ptable tr:last-child td{border-bottom:none}
+    .ptable tr:hover td{background:#fdfcff}
+    .pt{width:46px;height:46px;object-fit:cover;border-radius:8px}
+    .badge{display:inline-block;padding:0.18rem 0.6rem;border-radius:50px;font-size:0.72rem;font-weight:700}
+    .b-magazines{background:#fce7f3;color:#be185d}
+    .b-polaroids{background:#e0f2fe;color:#0369a1}
+    .b-frames{background:#dcfce7;color:#15803d}
+    .b-instock{background:#dcfce7;color:#15803d}
+    .b-out{background:#fee2e2;color:#dc2626}
+    .b-paid{background:#dcfce7;color:#15803d}
+    .b-pending{background:#fef3c7;color:#d97706}
+    .b-processing{background:#dbeafe;color:#1d4ed8}
+    .b-shipped{background:#ede9fe;color:#6d28d9}
+    .b-delivered{background:#dcfce7;color:#15803d}
+    .b-cancelled{background:#fee2e2;color:#dc2626}
+    .act{display:flex;gap:0.4rem;flex-wrap:wrap}
+
+    /* MODAL */
+    .mov{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:center;justify-content:center;padding:1rem}
+    .mov.open{display:flex}
+    .modal{background:white;border-radius:20px;width:640px;max-width:100%;max-height:93vh;overflow-y:auto}
+    .mh{padding:1.4rem;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:white;z-index:1}
+    .mh h2{font-family:var(--font-head);font-size:1.35rem}
+    .mc{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-light)}
+    .mb{padding:1.5rem}
+    .mf{padding:1.4rem;border-top:1px solid #f5f5f5;display:flex;justify-content:flex-end;gap:1rem}
+
+    /* ORDERS */
+    .order-card{background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem;border:1px solid #e5e7eb}
+    .order-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.5rem}
+    .order-actions{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e7eb}
+    .status-select{border:2px solid #e5e7eb;border-radius:8px;padding:0.4rem 0.7rem;font-family:var(--font-body);font-size:0.85rem;outline:none;cursor:pointer;color:var(--text)}
+    .status-select:focus{border-color:var(--primary)}
+
+    /* LOGO EDITOR */
+    .logo-preview-box{background:linear-gradient(135deg,#f0e6ff,#fce7f3);border-radius:16px;padding:2rem;text-align:center;margin-bottom:1.5rem;min-height:100px;display:flex;align-items:center;justify-content:center}
+    .logo-preview-text{font-size:2.5rem;font-style:italic;color:var(--primary)}
+    .logo-preview-img{max-height:80px;max-width:200px;object-fit:contain}
+
+    /* THEME */
+    .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .cf{display:flex;flex-direction:column;gap:0.4rem}
+    .cf label{font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase}
+    .cf input[type=color]{width:100%;height:46px;border:2px solid #e5e7eb;border-radius:10px;padding:4px;cursor:pointer}
+
+    /* FONT PICKER */
+    .font-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.8rem;margin-bottom:1.5rem}
+    .font-card{border:2px solid #e5e7eb;border-radius:12px;padding:1rem;cursor:pointer;transition:all 0.2s;text-align:center}
+    .font-card:hover{border-color:var(--secondary);background:var(--accent)}
+    .font-card.selected{border-color:var(--primary);background:var(--accent)}
+    .font-sample{font-size:1.4rem;margin-bottom:0.3rem;color:var(--text)}
+    .font-name{font-size:0.75rem;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+
+    /* VIDEO MANAGER */
+    .video-item{display:flex;align-items:center;gap:1rem;padding:0.8rem 1rem;background:var(--bg);border-radius:10px;margin-bottom:0.6rem;border:1px solid #e5e7eb}
+    .video-item input{flex:1;border:none;background:transparent;font-family:var(--font-body);font-size:0.9rem;color:var(--text);outline:none}
+    .video-type{font-size:1.2rem}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;border-radius:12px;font-weight:700;z-index:9999;transform:translateY(100px);transition:transform 0.3s;box-shadow:0 8px 30px rgba(0,0,0,0.2);color:white;max-width:300px}
+    .toast.show{transform:translateY(0)}
+    .toast.ok{background:var(--success)}
+    .toast.err{background:var(--danger)}
+    .toast.info{background:var(--primary)}
+
+    /* LOADING */
+    .loading{text-align:center;padding:3rem;color:var(--text-light)}
+    .spinner{width:36px;height:36px;border:3px solid var(--accent);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* MOBILE */
+    .sbt{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--primary);color:white;border:none;border-radius:10px;padding:0.7rem 0.8rem;cursor:pointer;font-size:1.2rem}
+    .sbo{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99}
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+      .sbt{display:block}.sbo.active{display:block}
+      .main{margin-left:0;padding:1rem;padding-top:4.5rem}
+      .r2,.r3{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .font-grid{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Harvia</div>
+    <div style="color:var(--text-light);font-size:0.85rem;margin-bottom:2rem">🔐 Admin Dashboard</div>
+    <div class="lf"><label>Username</label><input type="text" id="lu" autocomplete="off" placeholder="Username"></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="lerr" id="lerr">❌ Wrong username or password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dash">
+  <button class="sbt" onclick="toggleSB()">☰</button>
+  <div class="sbo" id="sbo" onclick="closeSB()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo"><span>Harvia</span><small>Admin Panel</small></div>
+    <div class="sb-nav">
+      <div class="nav-sec">Overview</div>
+      <div class="ni active" onclick="showT('overview',this)"><span>📊</span> Dashboard</div>
+      <div class="nav-sec">Store</div>
+      <div class="ni" onclick="showT('products',this)"><span>📦</span> Products</div>
+      <div class="ni" onclick="showT('orders',this)"><span>🛍️</span> Orders & Tracking</div>
+      <div class="nav-sec">Website Editor</div>
+      <div class="ni" onclick="showT('content',this)"><span>✏️</span> Edit Content</div>
+      <div class="ni" onclick="showT('about',this)"><span>💜</span> About Page</div>
+      <div class="ni" onclick="showT('latest',this)"><span>📸</span> Latest Creations</div>
+      <div class="ni" onclick="showT('buttons',this)"><span>🔘</span> Custom Buttons</div>
+      <div class="ni" onclick="showT('categories',this)"><span>🏷️</span> Categories</div>
+      <div class="ni" onclick="showT('logo',this)"><span>🖼️</span> Logo Design</div>
+      <div class="ni" onclick="showT('theme',this)"><span>🎨</span> Theme & Colors</div>
+      <div class="ni" onclick="showT('design',this)"><span>🖌️</span> Website Design</div>
+      <div class="ni" onclick="showT('fonts',this)"><span>🔤</span> Website Fonts</div>
+      <div class="ni" onclick="showT('videos',this)"><span>🎬</span> Videos (About Page)</div>
+      <div class="ni" onclick="showT('payment',this)"><span>💳</span> Payment / UPI QR</div>
+      <div class="ni" onclick="showT('contact',this)"><span>📞</span> Contact Info</div>
+      <div class="nav-sec">Account</div>
+      <div class="ni" onclick="showT('account',this)"><span>🔐</span> Username & Password</div>
+    </div>
+    <div class="sb-foot">
+      <a href="index.html" target="_blank">🌐 View Live Website ↗</a>
+      <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tc active">
+      <div class="topbar"><h1>👋 Welcome, Harish!</h1></div>
+      <div class="stats-grid">
+        <div class="sc"><div class="sc-icon">📦</div><div class="sc-num" id="s-all">–</div><div class="sc-lbl">Products</div></div>
+        <div class="sc"><div class="sc-icon">🛍️</div><div class="sc-num" id="s-orders">–</div><div class="sc-lbl">Total Orders</div></div>
+        <div class="sc"><div class="sc-icon">💰</div><div class="sc-num" id="s-rev">–</div><div class="sc-lbl">Revenue</div></div>
+        <div class="sc"><div class="sc-icon">📖</div><div class="sc-num" id="s-mag">–</div><div class="sc-lbl">Magazines</div></div>
+        <div class="sc"><div class="sc-icon">📸</div><div class="sc-num" id="s-pol">–</div><div class="sc-lbl">Polaroids</div></div>
+        <div class="sc"><div class="sc-icon">🖼️</div><div class="sc-num" id="s-frm">–</div><div class="sc-lbl">Frames</div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>📋 Recent Orders</h2></div>
+        <div class="pb" id="ov-orders"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="tab-products" class="tc">
+      <div class="topbar"><h1>📦 Products</h1><button class="btn bp" onclick="openAdd()">+ Add Product</button></div>
+      <div class="panel">
+        <div class="pb" style="padding:0;overflow-x:auto">
+          <table class="ptable">
+            <thead><tr><th>Img</th><th>Name</th><th>Category</th><th>Price</th><th>Disc</th><th>Stock</th><th>Actions</th></tr></thead>
+            <tbody id="ptbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS & TRACKING -->
+    <div id="tab-orders" class="tc">
+      <div class="topbar"><h1>🛍️ Orders & Tracking</h1><button class="btn bo btn-sm" onclick="loadOrders()">🔄 Refresh</button></div>
+      <div class="panel">
+        <div class="pb">
+          <p style="font-size:0.88rem;color:var(--text-light);margin-bottom:1.5rem">💡 Change order status, add tracking notes, or delete orders below. Status changes are immediately visible to customers when they track their order.</p>
+          <div id="orders-list"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="tab-content" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>✏️ Edit Website Content</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>🏠 Hero Section</h2><small style="color:var(--text-light)">Changes go live instantly!</small></div>
+        <div class="pb"><div class="af">
+          <div class="fg"><label>Main Headline</label><input id="hero-title" type="text" placeholder="HARVIA IS MAKE YOURS MINE BEAUTIFUL"></div>
+          <div class="fg"><label>Subtitle / Description</label><textarea id="hero-sub" style="min-height:80px"></textarea></div>
+          <div class="fg"><label>Button Text</label><input id="hero-cta" type="text" placeholder="Shop Now"></div>
+          <div><button class="btn bp" onclick="saveHero()">💾 Save Hero — Goes Live Now!</button></div>
+        </div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>💜 About Section</h2></div>
+        <div class="pb"><div class="af">
+          <div class="fg"><label>About Title</label><input id="about-title" type="text"></div>
+          <div class="fg"><label>About Content</label><textarea id="about-content" style="min-height:110px"></textarea></div>
+          <div class="fg"><label>About Image URL</label><input id="about-img" type="text" placeholder="https://..."><small>Paste any image URL — shows on about page</small></div>
+          <div><button class="btn bp" onclick="saveAbout()">💾 Save About</button></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ABOUT PAGE EDITOR -->
+    <div id="tab-about" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>💜 About Page</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>About Content</h2></div>
+        <div class="pb"><div class="af">
+          <div class="fg"><label>Page Title</label><input id="ab-title" type="text" placeholder="About Harvia Gifts"></div>
+          <div class="fg"><label>Main Content / Story</label><textarea id="ab-content" style="min-height:120px" placeholder="Tell your brand story..."></textarea></div>
+          <div class="fg"><label>Extra Section Content</label><textarea id="ab-extra" style="min-height:80px" placeholder="Additional info, mission, values..."></textarea></div>
+          <div class="fg"><label>About Image URL</label><input id="ab-img" type="url" placeholder="https://i.ibb.co/your-image.jpg"><small>Upload to imgbb.com → paste Direct link here</small></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+            <div class="fg"><label>Stat 1 (e.g. 500+)</label><input id="ab-stat1" type="text" placeholder="500+"></div>
+            <div class="fg"><label>Stat 1 Label</label><input id="ab-stat1l" type="text" placeholder="Customers"></div>
+            <div class="fg"><label>Stat 2 (e.g. 3)</label><input id="ab-stat2" type="text" placeholder="3"></div>
+          </div>
+          <div class="fg"><label>Instagram Handle (shown at bottom)</label><input id="ab-insta" type="text" placeholder="@harvia_gifts"></div>
+          <button class="btn bp" onclick="saveAboutFull()">💾 Save About Page — Goes Live Now!</button>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- LATEST CREATIONS -->
+    <div id="tab-latest" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>📸 Latest Creations</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Gallery Images</h2><button class="btn bp btn-sm" onclick="addLatestField()">+ Add Image</button></div>
+        <div class="pb">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem">These images show in the "Latest Creations" grid on your home page. Upload images to <a href="https://imgbb.com" target="_blank" style="color:var(--primary);font-weight:700">imgbb.com</a> and paste the Direct link.</p>
+          <div id="latest-fields"></div>
+          <button class="btn" style="margin-top:1rem;border:2px dashed var(--primary);background:var(--accent);color:var(--primary);width:100%;padding:0.8rem;border-radius:10px;font-weight:700;cursor:pointer" onclick="addLatestField()">➕ Add Another Image</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>Instagram Handle</h2></div>
+        <div class="pb"><div class="fg"><label>Instagram Username</label><input id="latest-insta" type="text" placeholder="@harvia_gifts"><small>Shown as a link below the grid</small></div></div>
+      </div>
+      <button class="btn bp" onclick="saveLatest()">💾 Save Latest Creations — Goes Live Now!</button>
+    </div>
+
+    <!-- CUSTOM BUTTONS -->
+    <div id="tab-buttons" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🔘 Custom Buttons</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Section Settings</h2></div>
+        <div class="pb"><div class="af">
+          <div class="r2">
+            <div class="fg"><label>Section Tag (e.g. 🔗 Quick Links)</label><input id="btn-sec-tag" type="text" placeholder="🔗 Quick Links"></div>
+            <div class="fg"><label>Section Title</label><input id="btn-sec-title" type="text" placeholder="Explore More"></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>Buttons</h2><button class="btn bp btn-sm" onclick="addBtnField()">+ Add Button</button></div>
+        <div class="pb">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem">Add buttons that appear on your home page. Great for linking to WhatsApp, Instagram, offers, etc.</p>
+          <div id="btn-fields"></div>
+          <button class="btn" style="margin-top:1rem;border:2px dashed var(--primary);background:var(--accent);color:var(--primary);width:100%;padding:0.8rem;border-radius:10px;font-weight:700;cursor:pointer" onclick="addBtnField()">➕ Add Another Button</button>
+        </div>
+      </div>
+      <button class="btn bp" onclick="saveCustomBtns()">💾 Save Buttons — Goes Live Now!</button>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div id="tab-categories" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🏷️ Product Categories</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Manage Categories</h2><button class="btn bp btn-sm" onclick="addCatField()">+ Add Category</button></div>
+        <div class="pb">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem">These categories appear in the Shop filter and in the product Add/Edit form. Changes reflect instantly when you save.</p>
+          <div id="cat-fields"></div>
+          <button class="btn" style="margin-top:1rem;border:2px dashed var(--primary);background:var(--accent);color:var(--primary);width:100%;padding:0.8rem;border-radius:10px;font-weight:700;cursor:pointer" onclick="addCatField()">➕ Add Another Category</button>
+        </div>
+      </div>
+      <button class="btn bp" onclick="saveCats()">💾 Save Categories — Goes Live Now!</button>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div id="tab-account" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🔐 Username & Password</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Change Login Credentials</h2></div>
+        <div class="pb"><div class="af">
+          <div style="background:#fef3c7;border-radius:10px;padding:1rem;border-left:4px solid #f59e0b;margin-bottom:1rem">
+            <p style="font-size:0.85rem;font-weight:700;color:#92400e">⚠️ After saving, you will be logged out. Use the new credentials to log in.</p>
+          </div>
+          <div class="fg"><label>Current Password</label><input type="password" id="acc-cur-pass" placeholder="Enter current password"></div>
+          <div class="fg"><label>New Username</label><input type="text" id="acc-new-user" placeholder="New username"></div>
+          <div class="fg"><label>New Password</label><input type="password" id="acc-new-pass" placeholder="New password (min 6 chars)"></div>
+          <div class="fg"><label>Confirm New Password</label><input type="password" id="acc-conf-pass" placeholder="Confirm new password"></div>
+          <button class="btn bp" onclick="saveAccount()">🔐 Save Credentials</button>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- LOGO EDITOR -->
+    <div id="tab-logo" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🖼️ Logo Design</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Logo Preview</h2></div>
+        <div class="pb">
+          <div class="logo-preview-box" id="logo-preview-box">
+            <span class="logo-preview-text" id="logo-prev-text" style="font-family:'Playfair Display',serif;color:#7c3aed">Harvia</span>
+            <img id="logo-prev-img" class="logo-preview-img" style="display:none" src="" alt="Logo">
+          </div>
+          <div class="af">
+            <div style="background:var(--bg);border-radius:12px;padding:1rem;border-left:4px solid var(--primary)">
+              <p style="font-weight:700;margin-bottom:0.5rem">Two Logo Options:</p>
+              <p style="font-size:0.88rem;color:var(--text-light)"><strong>Option 1:</strong> Text logo — type your brand name, pick a font and color<br><strong>Option 2:</strong> Image logo — upload your logo image to <a href="https://imgbb.com" target="_blank" style="color:var(--primary)">imgbb.com</a> and paste the URL</p>
+            </div>
+            <div>
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:700">
+                <input type="checkbox" id="use-img-logo" onchange="toggleLogoType()"> Use Image Logo (uncheck for text logo)
+              </label>
+            </div>
+            <!-- TEXT LOGO OPTIONS -->
+            <div id="text-logo-opts">
+              <div class="r2">
+                <div class="fg"><label>Logo Text</label><input id="logo-text" type="text" placeholder="Harvia" oninput="previewLogo()"></div>
+                <div class="fg"><label>Logo Color</label><input type="color" id="logo-color" value="#7c3aed" oninput="previewLogo()"></div>
+              </div>
+              <div class="fg"><label>Logo Tagline (below logo)</label><input id="logo-tagline" type="text" placeholder="Make Yours Mine Beautiful"></div>
+              <div class="fg"><label>Logo Font</label></div>
+              <div class="font-grid" id="logo-font-grid"></div>
+            </div>
+            <!-- IMAGE LOGO OPTIONS -->
+            <div id="img-logo-opts" style="display:none">
+              <div class="fg">
+                <label>Logo Image URL</label>
+                <input id="logo-img-url" type="text" placeholder="https://i.ibb.co/your-logo.png" oninput="previewLogo()">
+                <small>1. Go to <a href="https://imgbb.com" target="_blank" style="color:var(--primary)">imgbb.com</a> → Upload your logo → Copy "Direct link" → Paste here</small>
+              </div>
+            </div>
+            <div><button class="btn bp" onclick="saveLogo()">💾 Save Logo — Goes Live Now!</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEME -->
+    <div id="tab-theme" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🎨 Theme & Colors</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Color Palette</h2><small style="color:var(--text-light)">Changes go live instantly!</small></div>
+        <div class="pb">
+          <div class="tgrid">
+            <div class="cf"><label>Primary Color</label><input type="color" id="t-pri" value="#7c3aed" oninput="livePreview()"></div>
+            <div class="cf"><label>Secondary</label><input type="color" id="t-sec" value="#a78bfa" oninput="livePreview()"></div>
+            <div class="cf"><label>Accent / Light</label><input type="color" id="t-acc" value="#f0e6ff" oninput="livePreview()"></div>
+            <div class="cf"><label>Background</label><input type="color" id="t-bg" value="#fdfcff" oninput="livePreview()"></div>
+            <div class="cf"><label>Text Color</label><input type="color" id="t-txt" value="#1a1a2e" oninput="livePreview()"></div>
+          </div>
+          <div style="background:var(--bg);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem" id="theme-preview-box">
+            <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+              <div id="tp-primary" style="padding:0.6rem 1.5rem;border-radius:50px;color:white;font-weight:700;background:#7c3aed">Primary Button</div>
+              <div id="tp-accent" style="padding:0.6rem 1.5rem;border-radius:50px;font-weight:700;background:#f0e6ff;color:#7c3aed">Accent Badge</div>
+              <div id="tp-text" style="font-weight:700;color:#1a1a2e">Sample Text</div>
+            </div>
+          </div>
+          <div style="margin-bottom:1.5rem">
+            <p style="font-weight:700;margin-bottom:1rem">🎨 Quick Theme Presets:</p>
+            <div style="display:flex;gap:0.8rem;flex-wrap:wrap">
+              <button class="btn btn-sm" style="background:#7c3aed;color:white" onclick="applyPreset('#7c3aed','#a78bfa','#f0e6ff','#fdfcff','#1a1a2e')">💜 Violet (Default)</button>
+              <button class="btn btn-sm" style="background:#be185d;color:white" onclick="applyPreset('#be185d','#f9a8d4','#fce7f3','#fff5f9','#1a1a2e')">🌸 Pink Rose</button>
+              <button class="btn btn-sm" style="background:#0369a1;color:white" onclick="applyPreset('#0369a1','#7dd3fc','#e0f2fe','#f0f9ff','#0c2137')">💙 Ocean Blue</button>
+              <button class="btn btn-sm" style="background:#15803d;color:white" onclick="applyPreset('#15803d','#86efac','#dcfce7','#f0fdf4','#0a2a15')">💚 Forest Green</button>
+              <button class="btn btn-sm" style="background:#92400e;color:white" onclick="applyPreset('#92400e','#fbbf24','#fef3c7','#fffbeb','#1a0f00')">🌟 Golden</button>
+              <button class="btn btn-sm" style="background:#1a1a2e;color:white" onclick="applyPreset('#c026d3','#f0abfc','#fdf4ff','#0f0f1e','#f0e6ff')">🖤 Dark Mode</button>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem">
+            <label style="font-weight:700;display:block;margin-bottom:0.5rem">🖼️ Upload a Theme Image for Inspiration:</label>
+            <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.8rem">Upload any image and colors will be extracted from it automatically</p>
+            <input type="url" id="theme-img-url" placeholder="Paste image URL to extract colors" style="border:2px solid #e5e7eb;border-radius:10px;padding:0.7rem 1rem;width:100%;max-width:400px;font-family:var(--font-body);font-size:0.9rem;outline:none;margin-right:0.8rem">
+            <button class="btn bp" style="margin-top:0.5rem" onclick="extractFromImage()">🎨 Extract Colors</button>
+          </div>
+          <button class="btn bp" onclick="saveTheme()" style="margin-top:0.5rem">🎨 Apply Theme — Goes Live Now!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FONTS -->
+    <div id="tab-fonts" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🔤 Website Fonts</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Heading Font</h2><small style="color:var(--text-light)">Used for titles and brand name</small></div>
+        <div class="pb">
+          <div class="font-grid" id="heading-font-grid"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>Body Font</h2><small style="color:var(--text-light)">Used for all descriptions and text</small></div>
+        <div class="pb">
+          <div class="font-grid" id="body-font-grid"></div>
+          <div style="margin-top:1.5rem;padding:1.5rem;background:var(--bg);border-radius:12px" id="font-preview">
+            <div id="fp-head" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--primary);margin-bottom:0.5rem">Harvia Gifts – Sample Heading</div>
+            <div id="fp-body" style="font-family:'Lato',sans-serif;color:#6b6b8a;line-height:1.7">This is sample body text showing how your content will look across the website. Beautiful fonts make a big difference!</div>
+          </div>
+          <button class="btn bp" onclick="saveFonts()" style="margin-top:1.5rem">🔤 Apply Fonts — Goes Live Now!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEBSITE DESIGN -->
+    <div id="tab-design" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🖌️ Website Design & Style</h1></div></div>
+
+      <!-- HERO BACKGROUND -->
+      <div class="panel">
+        <div class="ph"><h2>🖼️ Hero Background Image</h2><small style="color:var(--text-light)">The big banner at the top of your website</small></div>
+        <div class="pb">
+          <div style="background:var(--bg);border-radius:12px;padding:1rem;border-left:4px solid var(--primary);margin-bottom:1.2rem">
+            <p style="font-size:0.85rem;color:var(--text-light)">📌 Upload your image to <a href="https://imgbb.com" target="_blank" style="color:var(--primary);font-weight:700">imgbb.com</a> → Copy "Direct link" → Paste below. Works on both mobile and desktop!</p>
+          </div>
+          <div class="af">
+            <div class="fg">
+              <label>Background Image URL</label>
+              <input id="d-hero-img" type="url" placeholder="https://i.ibb.co/your-image.jpg">
+              <small>Leave empty to use gradient background (no image)</small>
+            </div>
+            <div class="fg">
+              <label>Image Overlay Darkness (0 = no overlay, 0.7 = dark)</label>
+              <input id="d-hero-overlay" type="range" min="0" max="0.8" step="0.05" value="0.3" style="width:100%;accent-color:var(--primary)" oninput="document.getElementById('overlay-val').textContent=this.value">
+              <small>Overlay: <strong id="overlay-val">0.3</strong> — Makes text readable over image</small>
+            </div>
+            <div class="fg">
+              <label>Hero Text Color (when using background image)</label>
+              <input type="color" id="d-hero-text-color" value="#ffffff">
+            </div>
+            <div id="hero-bg-preview" style="border-radius:16px;overflow:hidden;height:200px;background:linear-gradient(135deg,#f0e6ff,#fce7f3);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;position:relative">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:none" id="hero-overlay-preview"></div>
+              <div style="position:relative;z-index:1;text-align:center;color:white;padding:1rem">
+                <div style="font-size:1.5rem;font-weight:700">Harvia Gifts</div>
+                <div style="font-size:0.9rem;opacity:0.9">Preview of your hero section</div>
+              </div>
+            </div>
+            <button class="btn bp" onclick="previewHeroBg()">👁️ Preview</button>
+            <button class="btn bp" onclick="saveDesign()" style="margin-left:0.5rem">💾 Save — Goes Live Now!</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD STYLE -->
+      <div class="panel">
+        <div class="ph"><h2>🃏 Product Card Style</h2></div>
+        <div class="pb">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem">
+            <div class="style-opt" id="card-rounded" onclick="selectCardStyle('rounded',this)" style="border:2px solid var(--primary);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;background:var(--accent)">
+              <div style="width:100%;height:70px;background:#e5e7eb;border-radius:16px;margin-bottom:0.6rem"></div>
+              <div style="font-size:0.82rem;font-weight:700">Rounded</div>
+            </div>
+            <div class="style-opt" id="card-sharp" onclick="selectCardStyle('sharp',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer">
+              <div style="width:100%;height:70px;background:#e5e7eb;border-radius:4px;margin-bottom:0.6rem"></div>
+              <div style="font-size:0.82rem;font-weight:700">Sharp</div>
+            </div>
+            <div class="style-opt" id="card-minimal" onclick="selectCardStyle('minimal',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer">
+              <div style="width:100%;height:70px;background:#f9fafb;border:2px solid #e5e7eb;border-radius:8px;margin-bottom:0.6rem"></div>
+              <div style="font-size:0.82rem;font-weight:700">Minimal</div>
+            </div>
+            <div class="style-opt" id="card-shadow" onclick="selectCardStyle('shadow',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer">
+              <div style="width:100%;height:70px;background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);margin-bottom:0.6rem"></div>
+              <div style="font-size:0.82rem;font-weight:700">Deep Shadow</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUTTON STYLE -->
+      <div class="panel">
+        <div class="ph"><h2>🔘 Button Style</h2></div>
+        <div class="pb">
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center">
+            <button id="btn-pill" onclick="selectBtnStyle('pill',this)" style="background:var(--primary);color:white;border:none;padding:0.75rem 2rem;border-radius:50px;font-weight:700;cursor:pointer;outline:3px solid var(--primary);outline-offset:2px">Pill (Default)</button>
+            <button id="btn-rounded" onclick="selectBtnStyle('rounded',this)" style="background:var(--primary);color:white;border:none;padding:0.75rem 2rem;border-radius:12px;font-weight:700;cursor:pointer">Rounded</button>
+            <button id="btn-sharp" onclick="selectBtnStyle('sharp',this)" style="background:var(--primary);color:white;border:none;padding:0.75rem 2rem;border-radius:4px;font-weight:700;cursor:pointer">Sharp</button>
+            <button id="btn-outline" onclick="selectBtnStyle('outline',this)" style="background:transparent;color:var(--primary);border:2px solid var(--primary);padding:0.75rem 2rem;border-radius:50px;font-weight:700;cursor:pointer">Outline</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV STYLE -->
+      <div class="panel">
+        <div class="ph"><h2>🗂️ Navigation Style</h2></div>
+        <div class="pb">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1rem">
+            <div class="style-opt" id="nav-light" onclick="selectNavStyle('light',this)" style="border:2px solid var(--primary);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:var(--accent)">
+              <div style="background:white;border-radius:8px;padding:0.4rem 0.8rem;margin-bottom:0.5rem;font-size:0.78rem;font-weight:700;border-bottom:2px solid #e5e7eb">☀️ Light Nav</div>
+              <div style="font-size:0.78rem;font-weight:700">Light (Default)</div>
+            </div>
+            <div class="style-opt" id="nav-dark" onclick="selectNavStyle('dark',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1rem;text-align:center;cursor:pointer">
+              <div style="background:#1a1a2e;border-radius:8px;padding:0.4rem 0.8rem;margin-bottom:0.5rem;font-size:0.78rem;font-weight:700;color:white">🌙 Dark Nav</div>
+              <div style="font-size:0.78rem;font-weight:700">Dark</div>
+            </div>
+            <div class="style-opt" id="nav-colored" onclick="selectNavStyle('colored',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1rem;text-align:center;cursor:pointer">
+              <div style="background:var(--primary);border-radius:8px;padding:0.4rem 0.8rem;margin-bottom:0.5rem;font-size:0.78rem;font-weight:700;color:white">🎨 Colored</div>
+              <div style="font-size:0.78rem;font-weight:700">Colored</div>
+            </div>
+            <div class="style-opt" id="nav-transparent" onclick="selectNavStyle('transparent',this)" style="border:2px solid #e5e7eb;border-radius:12px;padding:1rem;text-align:center;cursor:pointer">
+              <div style="background:rgba(255,255,255,0.3);border-radius:8px;padding:0.4rem 0.8rem;margin-bottom:0.5rem;font-size:0.78rem;font-weight:700;backdrop-filter:blur(8px)">🫧 Glass</div>
+              <div style="font-size:0.78rem;font-weight:700">Glassmorphism</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn bp" style="font-size:1rem;padding:1rem 2rem" onclick="saveDesign()">💾 Save All Design Changes — Goes Live Now!</button>
+    </div>
+
+    <!-- VIDEOS -->
+    <div id="tab-videos" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>🎬 Videos (About Page)</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>YouTube Videos</h2><button class="btn bp btn-sm" onclick="addVideoField('yt')">+ Add YouTube Video</button></div>
+        <div class="pb">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem">▶️ Paste YouTube links. Click <strong>"+ Add YouTube Video"</strong> to add more videos. Each link = one video on your website.</p>
+          <div id="yt-videos"></div>
+          <button class="btn" style="margin-top:1rem;border:2px dashed var(--primary);background:var(--accent);color:var(--primary);width:100%;padding:0.8rem;border-radius:10px;font-weight:700;cursor:pointer" onclick="addVideoField('yt')">➕ Add Another YouTube Video</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h2>Instagram Reels / Videos</h2><button class="btn bp btn-sm" onclick="addVideoField('ig')">+ Add Instagram Reel</button></div>
+        <div class="pb">
+          <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem">📸 Paste Instagram Reel links. Click <strong>"+ Add Instagram Reel"</strong> to add more. Each link shows as a clickable card on your website.</p>
+          <div id="ig-videos"></div>
+          <button class="btn" style="margin-top:1rem;border:2px dashed #833ab4;background:#fdf4ff;color:#833ab4;width:100%;padding:0.8rem;border-radius:10px;font-weight:700;cursor:pointer" onclick="addVideoField('ig')">➕ Add Another Instagram Reel</button>
+        </div>
+      </div>
+      <button class="btn bp" onclick="saveVideos()">💾 Save All Videos — Goes Live Now!</button>
+    </div>
+
+    <!-- PAYMENT -->
+    <div id="tab-payment" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>💳 Payment & UPI QR</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>UPI Payment Settings</h2></div>
+        <div class="pb"><div class="af">
+          <div class="r2">
+            <div class="fg"><label>UPI ID</label><input id="p-upi" type="text" placeholder="harish143@fam"><small>Shown to customers on payment page</small></div>
+            <div class="fg"><label>Account Name</label><input id="p-uname" type="text" placeholder="Harish"></div>
+          </div>
+          <div class="fg">
+            <label>QR Code Image URL</label>
+            <input id="p-qr" type="text" placeholder="Paste your QR code image URL" oninput="prevQR()">
+            <small>Upload QR screenshot to <a href="https://imgbb.com" target="_blank" style="color:var(--primary)">imgbb.com</a> → copy Direct Link → paste here</small>
+          </div>
+          <div id="qr-prev" style="display:none;text-align:center">
+            <img id="qr-prev-img" style="width:180px;height:180px;object-fit:contain;border-radius:12px;border:2px solid var(--accent)" src="" alt="QR">
+          </div>
+          <div style="background:var(--bg);border-radius:12px;padding:1.2rem;border-left:4px solid var(--primary)">
+            <p style="font-weight:700;margin-bottom:0.5rem">📱 How to get your QR:</p>
+            <ol style="font-size:0.85rem;color:var(--text-light);line-height:1.9;padding-left:1.2rem">
+              <li>Open FamPay / PhonePe / GPay</li>
+              <li>Go to <strong>Receive Money → Your QR Code</strong></li>
+              <li>Take a screenshot</li>
+              <li>Go to <a href="https://imgbb.com" target="_blank" style="color:var(--primary)">imgbb.com</a> → Upload → Copy <strong>Direct Link</strong></li>
+              <li>Paste link above and Save</li>
+            </ol>
+          </div>
+          <div><button class="btn bp" onclick="savePayment()">💾 Save Payment Settings</button></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div id="tab-contact" class="tc">
+      <div class="topbar"><div style="display:flex;align-items:center;gap:1rem"><button class="btn bo btn-sm" onclick="showT('overview',document.querySelector('.ni'))">← Back</button><h1>📞 Contact Info</h1></div></div>
+      <div class="panel">
+        <div class="ph"><h2>Update Contact Details</h2></div>
+        <div class="pb"><div class="af">
+          <div class="r2">
+            <div class="fg"><label>Instagram Handle</label><input id="c-ig" type="text" placeholder="harvia_gifts"></div>
+            <div class="fg"><label>WhatsApp Number (with +91)</label><input id="c-wa" type="text" placeholder="+919999999999"></div>
+          </div>
+          <div class="r2">
+            <div class="fg"><label>Email</label><input id="c-email" type="email" placeholder="harviagifts@gmail.com"></div>
+            <div class="fg"><label>Address / City</label><input id="c-addr" type="text" placeholder="Chennai, Tamil Nadu"></div>
+          </div>
+          <div><button class="btn bp" onclick="saveContact()">💾 Save Contact Info</button></div>
+        </div></div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end dash -->
+
+<!-- PRODUCT MODAL -->
+<div class="mov" id="prod-modal">
+  <div class="modal">
+    <div class="mh"><h2 id="modal-title">Add Product</h2><button class="mc" onclick="closeModal('prod-modal')">✕</button></div>
+    <div class="mb"><div class="af">
+      <input type="hidden" id="edit-id">
+      <div class="r2">
+        <div class="fg"><label>Product Name *</label><input id="p-name" type="text" placeholder="e.g. Harvia Magazine Vol.1"></div>
+        <div class="fg"><label>Category *</label><select id="p-cat"><option value="magazines">📖 Magazines</option><option value="polaroids">📸 Polaroids</option><option value="frames">🖼️ Frames</option></select></div>
+      </div>
+      <div class="r3">
+        <div class="fg"><label>Price (₹) *</label><input id="p-price" type="number" placeholder="350" min="0"></div>
+        <div class="fg"><label>Discount %</label><input id="p-disc" type="number" placeholder="0" min="0" max="90"></div>
+        <div class="fg"><label>Stock</label><select id="p-stock"><option value="true">✅ In Stock</option><option value="false">❌ Out of Stock</option></select></div>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="p-desc"></textarea></div>
+      <div class="fg"><label>Image URL</label><input id="p-img" type="text" placeholder="https://..." oninput="prevPImg()"><small>Free images: <a href="https://unsplash.com" target="_blank" style="color:var(--primary)">unsplash.com</a> — right click any image → Copy image address</small></div>
+      <img id="p-img-prev" style="display:none;max-width:100%;max-height:160px;object-fit:cover;border-radius:10px">
+    </div></div>
+    <div class="mf"><button class="btn bo" onclick="closeModal('prod-modal')">Cancel</button><button class="btn bp" onclick="saveProd()">💾 Save Product</button></div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="mov" id="order-modal">
+  <div class="modal">
+    <div class="mh"><h2>📦 Order Details</h2><button class="mc" onclick="closeModal('order-modal')">✕</button></div>
+    <div class="mb" id="order-modal-body"></div>
+    <div class="mf"><button class="btn bo" onclick="closeModal('order-modal')">Close</button><button class="btn bp" onclick="saveOrderChanges()">💾 Save Changes</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://aelpshmpdxkbztzpdeiz.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlbHBzaG1wZHhrYnp0enBkZWl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMTI1MDEsImV4cCI6MjA5MDc4ODUwMX0.vYeSuJQzKAqsGrFkIpklae0_yDEDF4cYdntUx2aQst4';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+let products=[],settings={},allOrders=[];
+let selHeadFont='Playfair Display',selBodyFont='Lato',selLogoFont='Playfair Display';
+let editingOrderId=null;
+
+const FONTS_HEAD=['Playfair Display','Cormorant Garamond','DM Serif Display','Libre Baskerville','Cinzel','Great Vibes','Dancing Script','Merriweather','Roboto Slab','EB Garamond','Satisfy','Philosopher','Italiana','Bodoni Moda','Gloock','Crimson Pro'];
+const FONTS_BODY=['Lato','Poppins','Montserrat','Nunito','Raleway','Quicksand','Josefin Sans','Jost','DM Sans','Plus Jakarta Sans','Outfit','Inter'];
+const FONTS_LOGO=['Playfair Display','Cormorant Garamond','Cinzel','Great Vibes','Dancing Script','Pacifico','Lobster','Josefin Sans','Satisfy','Italiana','Bodoni Moda'];
+
+// LOGIN
+async function doLogin(){
+  const u=g('lu'),p=g('lp');
+  const{data}=await sb.from('admin_users').select('*').eq('username',u).eq('password_hash',p).single();
+  if(data){sessionStorage.setItem('hv','1');document.getElementById('login-screen').style.display='none';document.getElementById('dash').style.display='block';init();}
+  else document.getElementById('lerr').style.display='block';
+}
+function doLogout(){sessionStorage.removeItem('hv');location.reload();}
+window.onload=()=>{if(sessionStorage.getItem('hv')){document.getElementById('login-screen').style.display='none';document.getElementById('dash').style.display='block';init();}};
+
+async function init(){
+  await Promise.all([loadSettings(),loadProducts(),loadOrders()]);
+  fillForms();buildFontGrids();buildLogoFontGrid();
+}
+
+// SETTINGS
+async function loadSettings(){
+  const{data}=await sb.from('site_settings').select('*');
+  if(data)data.forEach(r=>settings[r.key]=r.value);
+}
+
+function fillForms(){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+  if(settings.hero){set('hero-title',settings.hero.title);set('hero-sub',settings.hero.subtitle);set('hero-cta',settings.hero.cta_text);}
+  if(settings.about){set('about-title',settings.about.title);set('about-content',settings.about.content);set('about-img',settings.about.image_url);}
+  if(settings.contact){set('c-ig',settings.contact.instagram);set('c-wa',settings.contact.whatsapp);set('c-email',settings.contact.email);set('c-addr',settings.contact.address);}
+  if(settings.about){set('ab-title',settings.about.title);set('ab-content',settings.about.content);set('ab-extra',settings.about.extra_content);set('ab-img',settings.about.image_url);set('ab-stat1',settings.about.stat1_num);set('ab-stat1l',settings.about.stat1_label);set('ab-stat2',settings.about.stat2_num);set('ab-insta',settings.about.insta_handle);}
+  if(settings.latest_creations){
+    set('latest-insta',settings.latest_creations.insta_handle);
+    const lf=document.getElementById('latest-fields');if(lf){lf.innerHTML='';(settings.latest_creations.images||[]).forEach(img=>addLatestField(img));}
+  }
+  if(settings.custom_buttons){
+    set('btn-sec-tag',settings.custom_buttons_tag);set('btn-sec-title',settings.custom_buttons_title);
+    const bf=document.getElementById('btn-fields');if(bf){bf.innerHTML='';(settings.custom_buttons||[]).forEach(b=>addBtnField(b));}
+  }
+  if(settings.categories){
+    currentCats=settings.categories;
+    const cf=document.getElementById('cat-fields');if(cf){cf.innerHTML='';settings.categories.forEach(c=>addCatField(c));}
+    const sel=document.getElementById('p-cat');
+    if(sel)sel.innerHTML=settings.categories.map(c=>`<option value="${c}">${catEmojis[c]||'🏷️'} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
+  }else{
+    // Load defaults
+    ['magazines','polaroids','frames'].forEach(c=>addCatField(c));
+  }
+  if(settings.theme){set('t-pri',settings.theme.primary);set('t-sec',settings.theme.secondary);set('t-acc',settings.theme.accent);set('t-bg',settings.theme.bg);set('t-txt',settings.theme.text);selHeadFont=settings.theme.font_heading||'Playfair Display';selBodyFont=settings.theme.font_body||'Lato';}
+  if(settings.design)loadDesignSettings();
+  if(settings.payment){set('p-upi',settings.payment.upi_id);set('p-uname',settings.payment.upi_name);set('p-qr',settings.payment.qr_image_url);if(settings.payment.qr_image_url)prevQR();}
+  if(settings.logo){
+    const l=settings.logo;
+    set('logo-text',l.text);set('logo-color',l.color||'#7c3aed');set('logo-tagline',l.tagline);set('logo-img-url',l.image_url||'');
+    selLogoFont=l.font||'Playfair Display';
+    const cb=document.getElementById('use-img-logo');if(cb)cb.checked=l.use_image;toggleLogoType();
+  }
+  if(settings.media){
+    const m=settings.media;
+    const ytEl=document.getElementById('yt-videos');
+    const igEl=document.getElementById('ig-videos');
+    if(ytEl&&m.youtube_videos){ytEl.innerHTML='';(m.youtube_videos||[]).forEach(url=>addVideoField('yt',url));}
+    if(igEl&&m.instagram_videos){igEl.innerHTML='';(m.instagram_videos||[]).forEach(url=>addVideoField('ig',url));}
+  }
+}
+
+// PRODUCTS
+async function loadProducts(){
+  const{data}=await sb.from('products').select('*').order('created_at',{ascending:false});
+  if(!data)return;
+  products=data;renderTable();
+  document.getElementById('s-all').textContent=data.length;
+  document.getElementById('s-mag').textContent=data.filter(p=>p.category==='magazines').length;
+  document.getElementById('s-pol').textContent=data.filter(p=>p.category==='polaroids').length;
+  document.getElementById('s-frm').textContent=data.filter(p=>p.category==='frames').length;
+}
+
+function renderTable(){
+  const tb=document.getElementById('ptbody');
+  if(!products.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-light)">No products yet! Click "+ Add Product"</td></tr>';return;}
+  tb.innerHTML=products.map(p=>{
+    const fp=p.discount_percent>0?Math.round(p.price*(1-p.discount_percent/100)):parseFloat(p.price);
+    return`<tr>
+      <td><img src="${p.image_url||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100'}" class="pt" onerror="this.src='https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100'"></td>
+      <td><strong>${p.name}</strong><br><small style="color:var(--text-light)">${(p.description||'').substring(0,40)}...</small></td>
+      <td><span class="badge b-${p.category}">${p.category}</span></td>
+      <td>₹${fp}${p.discount_percent>0?`<br><small style="color:#bbb;text-decoration:line-through">₹${parseFloat(p.price)}</small>`:''}</td>
+      <td>${p.discount_percent>0?`<span class="badge" style="background:#fef3c7;color:#d97706">-${p.discount_percent}%</span>`:'–'}</td>
+      <td><span class="badge ${p.in_stock?'b-instock':'b-out'}">${p.in_stock?'In Stock':'Out of Stock'}</span></td>
+      <td><div class="act"><button class="btn bo btn-sm" onclick="openEdit('${p.id}')">✏️</button><button class="btn bd btn-sm" onclick="delProd('${p.id}')">🗑️</button></div></td>
+    </tr>`;}).join('');
+}
+
+function openAdd(){
+  document.getElementById('modal-title').textContent='+ Add New Product';
+  document.getElementById('edit-id').value='';
+  ['p-name','p-desc','p-img'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  document.getElementById('p-cat').value='magazines';
+  document.getElementById('p-price').value='';
+  document.getElementById('p-disc').value='0';
+  document.getElementById('p-stock').value='true';
+  document.getElementById('p-img-prev').style.display='none';
+  document.getElementById('prod-modal').classList.add('open');
+}
+
+function openEdit(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  document.getElementById('modal-title').textContent='✏️ Edit Product';
+  document.getElementById('edit-id').value=p.id;
+  document.getElementById('p-name').value=p.name||'';
+  document.getElementById('p-cat').value=p.category||'magazines';
+  document.getElementById('p-price').value=p.price||'';
+  document.getElementById('p-disc').value=p.discount_percent||0;
+  document.getElementById('p-stock').value=p.in_stock?'true':'false';
+  document.getElementById('p-desc').value=p.description||'';
+  document.getElementById('p-img').value=p.image_url||'';
+  if(p.image_url){document.getElementById('p-img-prev').src=p.image_url;document.getElementById('p-img-prev').style.display='block';}
+  document.getElementById('prod-modal').classList.add('open');
+}
+
+function prevPImg(){const v=g('p-img'),el=document.getElementById('p-img-prev');if(v){el.src=v;el.style.display='block';}else el.style.display='none';}
+
+async function saveProd(){
+  const id=g('edit-id');
+  const d={name:g('p-name').trim(),category:g('p-cat'),price:parseFloat(g('p-price'))||0,discount_percent:parseInt(g('p-disc'))||0,in_stock:g('p-stock')==='true',description:g('p-desc').trim(),image_url:g('p-img').trim(),updated_at:new Date().toISOString()};
+  if(!d.name||!d.price){toast('Please fill Name and Price','err');return;}
+  const{error}=id?await sb.from('products').update(d).eq('id',id):await sb.from('products').insert([d]);
+  if(error){toast('Error: '+error.message,'err');return;}
+  toast(id?'✅ Product updated!':'✅ Product added!');
+  closeModal('prod-modal');await loadProducts();
+}
+
+async function delProd(id){
+  if(!confirm('Delete this product permanently?'))return;
+  await sb.from('products').delete().eq('id',id);
+  toast('🗑️ Product deleted','info');await loadProducts();
+}
+
+// ORDERS
+async function loadOrders(){
+  const{data}=await sb.from('orders').select('*').order('created_at',{ascending:false}).limit(100);
+  allOrders=data||[];
+  const count=allOrders.length;
+  document.getElementById('s-orders').textContent=count;
+  const rev=allOrders.reduce((s,o)=>s+(parseFloat(o.total_amount)||0),0);
+  document.getElementById('s-rev').textContent=rev?`₹${Math.round(rev)}`:'₹0';
+  renderOrders(allOrders);
+  renderOrdersOverview(allOrders.slice(0,5));
+}
+
+function renderOrdersOverview(data){
+  const el=document.getElementById('ov-orders');
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text-light);text-align:center;padding:2rem">No orders yet. Orders show here when customers buy from your website!</p>';return;}
+  el.innerHTML=data.map(o=>miniOrderCard(o)).join('');
+}
+
+function renderOrders(data){
+  const el=document.getElementById('orders-list');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text-light);text-align:center;padding:3rem">No orders yet.</p>';return;}
+  el.innerHTML=data.map(o=>fullOrderCard(o)).join('');
+}
+
+function miniOrderCard(o){
+  const items=Array.isArray(o.items)?o.items:[];
+  return`<div class="order-card">
+    <div class="order-top">
+      <div><strong style="color:var(--primary)">${o.tracking_number||('#'+o.id.substring(0,8).toUpperCase())}</strong><br><small style="color:var(--text-light)">${new Date(o.created_at).toLocaleDateString('en-IN')}</small></div>
+      <span class="badge b-${o.status||'pending'}">${o.status||'pending'}</span>
+    </div>
+    <div style="font-size:0.85rem;color:var(--text-light)">${items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</div>
+    <div style="font-weight:700;color:var(--primary);margin-top:0.3rem">₹${o.total_amount||'–'}</div>
+  </div>`;
+}
+
+function fullOrderCard(o){
+  const items=Array.isArray(o.items)?o.items:[];
+  const statuses=['pending','processing','shipped','delivered','cancelled'];
+  return`<div class="order-card" id="oc-${o.id}">
+    <div class="order-top">
+      <div>
+        <strong style="color:var(--primary);font-size:1rem">${o.tracking_number||('ORD-'+o.id.substring(0,8).toUpperCase())}</strong>
+        <span class="badge b-${o.status||'pending'}" style="margin-left:0.5rem">${o.status||'pending'}</span>
+        <div style="font-size:0.8rem;color:var(--text-light);margin-top:0.2rem">${new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
+    </div>
+    <div style="font-size:0.88rem;line-height:1.7;margin-bottom:0.5rem">${items.map(i=>`• ${i.name} × ${i.qty} = ₹${i.subtotal||i.price||'–'}`).join('<br>')}</div>
+    <div style="font-weight:700;color:var(--primary)">Total: ₹${o.total_amount||'–'}</div>
+    ${o.tracking_notes?`<div style="background:var(--accent);border-radius:8px;padding:0.7rem;margin-top:0.7rem;font-size:0.85rem"><strong>📝 Note:</strong> ${o.tracking_notes}</div>`:''}
+    <div class="order-actions">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex:1">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--text-light)">Status:</label>
+        <select class="status-select" id="st-${o.id}" onchange="quickUpdateStatus('${o.id}',this.value)">
+          ${statuses.map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn bp btn-sm" onclick="openOrderEdit('${o.id}')">📝 Edit Notes</button>
+      <button class="btn bd btn-sm" onclick="delOrder('${o.id}')">🗑️ Delete</button>
+    </div>
+  </div>`;
+}
+
+async function quickUpdateStatus(id,status){
+  const{error}=await sb.from('orders').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){toast('Error updating status','err');return;}
+  toast(`✅ Order status → ${status}`);
+  // Update badge in card
+  const card=document.getElementById('oc-'+id);
+  if(card){const badge=card.querySelector('.badge');if(badge){badge.className='badge b-'+status;badge.textContent=status;}}
+  const idx=allOrders.findIndex(o=>o.id===id);if(idx>=0)allOrders[idx].status=status;
+}
+
+function openOrderEdit(id){
+  const o=allOrders.find(x=>x.id===id);if(!o)return;
+  editingOrderId=id;
+  const statuses=['pending','processing','shipped','delivered','cancelled'];
+  document.getElementById('order-modal-body').innerHTML=`
+    <div class="af">
+      <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:0.5rem">
+        <strong style="color:var(--primary)">${o.tracking_number||o.id.substring(0,8).toUpperCase()}</strong>
+        <div style="font-size:0.85rem;color:var(--text-light);margin-top:0.2rem">${new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
+      <div class="fg"><label>Order Status</label>
+        <select id="om-status">${statuses.map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label>Tracking Notes (visible to customer)</label>
+        <textarea id="om-notes" style="min-height:100px" placeholder="e.g. Your order has been packed and will be shipped tomorrow via BlueDart...">${o.tracking_notes||''}</textarea>
+      </div>
+      <div class="fg"><label>Customer Name</label><input id="om-name" type="text" value="${o.customer_name||''}"></div>
+      <div class="fg"><label>Customer Phone</label><input id="om-phone" type="text" value="${o.customer_phone||''}"></div>
+    </div>`;
+  document.getElementById('order-modal').classList.add('open');
+}
+
+async function saveOrderChanges(){
+  if(!editingOrderId)return;
+  const d={status:g('om-status'),tracking_notes:g('om-notes'),customer_name:g('om-name'),customer_phone:g('om-phone'),updated_at:new Date().toISOString()};
+  const{error}=await sb.from('orders').update(d).eq('id',editingOrderId);
+  if(error){toast('Error: '+error.message,'err');return;}
+  toast('✅ Order updated successfully!');
+  closeModal('order-modal');await loadOrders();
+}
+
+async function delOrder(id){
+  if(!confirm('Delete this order permanently?'))return;
+  await sb.from('orders').delete().eq('id',id);
+  toast('🗑️ Order deleted','info');await loadOrders();
+}
+
+// LOGO
+function toggleLogoType(){
+  const useImg=document.getElementById('use-img-logo').checked;
+  document.getElementById('text-logo-opts').style.display=useImg?'none':'block';
+  document.getElementById('img-logo-opts').style.display=useImg?'block':'none';
+  previewLogo();
+}
+
+function previewLogo(){
+  const useImg=document.getElementById('use-img-logo').checked;
+  const txtEl=document.getElementById('logo-prev-text');
+  const imgEl=document.getElementById('logo-prev-img');
+  if(useImg){
+    const url=g('logo-img-url');
+    if(url){imgEl.src=url;imgEl.style.display='block';txtEl.style.display='none';}
+    else{imgEl.style.display='none';txtEl.style.display='block';txtEl.textContent='Paste image URL above';}
+  }else{
+    imgEl.style.display='none';txtEl.style.display='block';
+    txtEl.textContent=g('logo-text')||'Harvia';
+    txtEl.style.color=g('logo-color')||'#7c3aed';
+    txtEl.style.fontFamily=`'${selLogoFont}',serif`;
+  }
+}
+
+function buildLogoFontGrid(){
+  const grid=document.getElementById('logo-font-grid');if(!grid)return;
+  grid.innerHTML=FONTS_LOGO.map(f=>`<div class="font-card${f===selLogoFont?' selected':''}" onclick="selectLogoFont('${f}',this)" style="font-family:'${f}',serif">
+    <div class="font-sample" style="font-family:'${f}',serif">Harvia</div>
+    <div class="font-name">${f}</div>
+  </div>`).join('');
+}
+
+function selectLogoFont(f,el){
+  selLogoFont=f;
+  document.querySelectorAll('#logo-font-grid .font-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');previewLogo();
+}
+
+async function saveLogo(){
+  const useImg=document.getElementById('use-img-logo').checked;
+  const ok=await upsert('logo',{text:g('logo-text'),color:g('logo-color'),font:selLogoFont,tagline:g('logo-tagline'),image_url:g('logo-img-url'),use_image:useImg});
+  toast(ok?'✅ Logo saved! Live on website.':'❌ Error saving','ok');
+}
+
+// THEME
+function livePreview(){
+  const pri=g('t-pri'),acc=g('t-acc'),txt=g('t-txt');
+  const box=document.getElementById('tp-primary');if(box)box.style.background=pri;
+  const abox=document.getElementById('tp-accent');if(abox){abox.style.background=acc;abox.style.color=pri;}
+  const tbox=document.getElementById('tp-text');if(tbox)tbox.style.color=txt;
+}
+
+function applyPreset(pri,sec,acc,bg,txt){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  set('t-pri',pri);set('t-sec',sec);set('t-acc',acc);set('t-bg',bg);set('t-txt',txt);
+  livePreview();toast('Preview updated — click Apply to save!','info');
+}
+
+async function extractFromImage(){
+  const url=g('theme-img-url');
+  if(!url){toast('Paste an image URL first','err');return;}
+  toast('🎨 Extracting colors...','info');
+  // Draw image on canvas, sample colors
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=function(){
+    try{
+      const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+      const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+      // Sample a few pixels for dominant colors
+      const px1=ctx.getImageData(Math.floor(img.width*0.2),Math.floor(img.height*0.3),1,1).data;
+      const px2=ctx.getImageData(Math.floor(img.width*0.7),Math.floor(img.height*0.5),1,1).data;
+      const toHex=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+      const col1=toHex(px1[0],px1[1],px1[2]);
+      const col2=toHex(px2[0],px2[1],px2[2]);
+      document.getElementById('t-pri').value=col1;
+      document.getElementById('t-sec').value=col2;
+      livePreview();
+      toast('✅ Colors extracted! Adjust if needed, then Apply.','ok');
+    }catch(e){toast('⚠️ Could not extract — image may not allow cross-origin access','err');}
+  };
+  img.onerror=()=>toast('⚠️ Could not load image. Try another URL.','err');
+  img.src=url;
+}
+
+// FONTS
+function buildFontGrids(){
+  const hg=document.getElementById('heading-font-grid');
+  const bg=document.getElementById('body-font-grid');
+  if(hg)hg.innerHTML=FONTS_HEAD.map(f=>`<div class="font-card${f===selHeadFont?' selected':''}" onclick="selFont('head','${f}',this)" style="font-family:'${f}',serif">
+    <div class="font-sample" style="font-family:'${f}',serif">Harvia Gifts</div>
+    <div class="font-name">${f}</div>
+  </div>`).join('');
+  if(bg)bg.innerHTML=FONTS_BODY.map(f=>`<div class="font-card${f===selBodyFont?' selected':''}" onclick="selFont('body','${f}',this)">
+    <div class="font-sample" style="font-family:'${f}',sans-serif">Beautiful Gifts</div>
+    <div class="font-name">${f}</div>
+  </div>`).join('');
+}
+
+function selFont(type,f,el){
+  if(type==='head'){
+    selHeadFont=f;
+    document.querySelectorAll('#heading-font-grid .font-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('fp-head').style.fontFamily=`'${f}',serif`;
+  }else{
+    selBodyFont=f;
+    document.querySelectorAll('#body-font-grid .font-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('fp-body').style.fontFamily=`'${f}',sans-serif`;
+  }
+  el.classList.add('selected');
+}
+
+async function saveFonts(){
+  const t=settings.theme||{};
+  t.font_heading=selHeadFont;t.font_body=selBodyFont;
+  const ok=await upsert('theme',t);
+  toast(ok?'🔤 Fonts applied! Live on website.':'❌ Error saving','ok');
+}
+
+// VIDEOS
+function addVideoField(type,val=''){
+  const container=document.getElementById(type==='yt'?'yt-videos':'ig-videos');
+  if(!container)return;
+  const div=document.createElement('div');
+  div.className='video-item';
+  div.innerHTML=`<span class="video-type">${type==='yt'?'▶️':'📸'}</span>
+    <input type="url" value="${val}" placeholder="${type==='yt'?'https://youtube.com/watch?v=... or youtu.be/...':'https://instagram.com/reel/...'}">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem">✕</button>`;
+  container.appendChild(div);
+}
+
+async function saveVideos(){
+  const ytInputs=Array.from(document.querySelectorAll('#yt-videos input')).map(i=>i.value.trim()).filter(Boolean);
+  const igInputs=Array.from(document.querySelectorAll('#ig-videos input')).map(i=>i.value.trim()).filter(Boolean);
+  const ok=await upsert('media',{youtube_videos:ytInputs,instagram_videos:igInputs,enabled:true});
+  toast(ok?'🎬 Videos saved! Live on About page.':'❌ Error','ok');
+}
+
+// SAVE HELPERS
+async function upsert(key,value){const{error}=await sb.from('site_settings').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});return!error;}
+async function saveHero(){const ok=await upsert('hero',{title:g('hero-title'),subtitle:g('hero-sub'),cta_text:g('hero-cta')});toast(ok?'✅ Hero saved! Live now.':'❌ Error','ok');}
+async function saveAbout(){const ok=await upsert('about',{title:g('about-title'),content:g('about-content'),image_url:g('about-img')});toast(ok?'✅ About saved! Live now.':'❌ Error','ok');}
+async function saveContact(){const ok=await upsert('contact',{instagram:g('c-ig'),whatsapp:g('c-wa'),email:g('c-email'),address:g('c-addr')});toast(ok?'✅ Contact saved! Live now.':'❌ Error','ok');}
+async function saveTheme(){const ok=await upsert('theme',{primary:g('t-pri'),secondary:g('t-sec'),accent:g('t-acc'),bg:g('t-bg'),text:g('t-txt'),font_heading:selHeadFont,font_body:selBodyFont});toast(ok?'🎨 Theme applied! Live now.':'❌ Error','ok');}
+
+// DESIGN TAB
+let selCardStyle='rounded',selBtnStyle='pill',selNavStyle='light';
+function selectCardStyle(s,el){selCardStyle=s;document.querySelectorAll('.style-opt[id^="card-"]').forEach(e=>{e.style.border='2px solid #e5e7eb';e.style.background='white';});el.style.border='2px solid var(--primary)';el.style.background='var(--accent)';}
+function selectBtnStyle(s,el){selBtnStyle=s;document.querySelectorAll('button[id^="btn-"]').forEach(e=>e.style.outline='none');el.style.outline='3px solid var(--primary)';el.style.outlineOffset='2px';}
+function selectNavStyle(s,el){selNavStyle=s;document.querySelectorAll('.style-opt[id^="nav-"]').forEach(e=>{e.style.border='2px solid #e5e7eb';e.style.background='white';});el.style.border='2px solid var(--primary)';el.style.background='var(--accent)';}
+function previewHeroBg(){
+  const url=g('d-hero-img'),overlay=document.getElementById('d-hero-overlay').value;
+  const prev=document.getElementById('hero-bg-preview');
+  const overlayEl=document.getElementById('hero-overlay-preview');
+  if(url){prev.style.backgroundImage=`url(${url})`;prev.style.backgroundSize='cover';prev.style.backgroundPosition='center';overlayEl.style.display='block';overlayEl.style.background=`rgba(0,0,0,${overlay})`;}
+  else{prev.style.backgroundImage='';prev.style.background='linear-gradient(135deg,#f0e6ff,#fce7f3)';overlayEl.style.display='none';}
+}
+async function saveDesign(){
+  const ok=await upsert('design',{
+    hero_bg_image:g('d-hero-img'),
+    hero_overlay:document.getElementById('d-hero-overlay').value,
+    hero_text_color:g('d-hero-text-color'),
+    card_style:selCardStyle,
+    btn_style:selBtnStyle,
+    nav_style:selNavStyle
+  });
+  toast(ok?'🖌️ Design saved! Live now.':'❌ Error saving design','ok');
+}
+function loadDesignSettings(){
+  const d=settings.design;if(!d)return;
+  if(d.hero_bg_image)set('d-hero-img',d.hero_bg_image);
+  if(d.hero_overlay){document.getElementById('d-hero-overlay').value=d.hero_overlay;document.getElementById('overlay-val').textContent=d.hero_overlay;}
+  if(d.hero_text_color)set('d-hero-text-color',d.hero_text_color);
+  if(d.card_style){selCardStyle=d.card_style;const el=document.getElementById('card-'+d.card_style);if(el)selectCardStyle(d.card_style,el);}
+  if(d.btn_style){selBtnStyle=d.btn_style;const el=document.getElementById('btn-'+d.btn_style);if(el)selectBtnStyle(d.btn_style,el);}
+  if(d.nav_style){selNavStyle=d.nav_style;const el=document.getElementById('nav-'+d.nav_style);if(el)selectNavStyle(d.nav_style,el);}
+}
+async function savePayment(){const ok=await upsert('payment',{upi_id:g('p-upi'),upi_name:g('p-uname'),qr_image_url:g('p-qr')});toast(ok?'💳 Payment settings saved!':'❌ Error','ok');}
+function prevQR(){const u=g('p-qr'),w=document.getElementById('qr-prev'),i=document.getElementById('qr-prev-img');if(u){i.src=u;w.style.display='block';}else w.style.display='none';}
+
+// ABOUT FULL EDITOR
+async function saveAboutFull(){
+  const ok=await upsert('about',{
+    title:g('ab-title'),content:g('ab-content'),extra_content:g('ab-extra'),
+    image_url:g('ab-img'),stat1_num:g('ab-stat1'),stat1_label:g('ab-stat1l'),stat2_num:g('ab-stat2'),
+    insta_handle:g('ab-insta')
+  });
+  toast(ok?'💜 About page saved! Live now.':'❌ Error','ok');
+}
+
+// LATEST CREATIONS
+function addLatestField(val={}){
+  const container=document.getElementById('latest-fields');
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:0.6rem;margin-bottom:0.7rem;align-items:center';
+  div.innerHTML=`<input type="url" value="${val.url||''}" placeholder="Image URL (from imgbb.com)" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem 0.8rem;font-family:var(--font-body);font-size:0.85rem;outline:none">
+    <input type="text" value="${val.label||''}" placeholder="Label (optional)" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem 0.8rem;font-family:var(--font-body);font-size:0.85rem;outline:none">
+    <input type="url" value="${val.link||''}" placeholder="Link (optional)" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem 0.8rem;font-family:var(--font-body);font-size:0.85rem;outline:none">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem">✕</button>`;
+  container.appendChild(div);
+}
+async function saveLatest(){
+  const rows=document.querySelectorAll('#latest-fields > div');
+  const images=Array.from(rows).map(r=>{
+    const inputs=r.querySelectorAll('input');
+    return{url:inputs[0].value.trim(),label:inputs[1].value.trim(),link:inputs[2].value.trim()};
+  }).filter(i=>i.url);
+  const insta=g('latest-insta');
+  const ok=await upsert('latest_creations',{images,insta_handle:insta||'@harvia_gifts'});
+  toast(ok?'📸 Latest Creations saved! Live now.':'❌ Error','ok');
+}
+
+// CUSTOM BUTTONS
+function addBtnField(val={}){
+  const container=document.getElementById('btn-fields');
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:0.6rem;margin-bottom:0.7rem;align-items:center';
+  div.innerHTML=`<input type="text" value="${val.emoji||''}" placeholder="😊" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem;font-size:1.2rem;width:54px;text-align:center;outline:none">
+    <input type="text" value="${val.label||''}" placeholder="Button Label" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem 0.8rem;font-family:var(--font-body);font-size:0.88rem;outline:none">
+    <input type="url" value="${val.link||''}" placeholder="https://... or #shop" style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem 0.8rem;font-family:var(--font-body);font-size:0.88rem;outline:none">
+    <select style="border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem;font-family:var(--font-body);font-size:0.85rem;outline:none">
+      <option value="primary"${val.style==='primary'?' selected':''}>💜 Purple</option>
+      <option value="secondary"${val.style==='secondary'?' selected':''}>⬜ Outline</option>
+      <option value="accent"${val.style==='accent'?' selected':''}>🟣 Light</option>
+      <option value="dark"${val.style==='dark'?' selected':''}>⬛ Dark</option>
+      <option value="green"${val.style==='green'?' selected':''}>💚 Green</option>
+    </select>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem">✕</button>`;
+  container.appendChild(div);
+}
+async function saveCustomBtns(){
+  const rows=document.querySelectorAll('#btn-fields > div');
+  const buttons=Array.from(rows).map(r=>{
+    const inputs=r.querySelectorAll('input');
+    const sel=r.querySelector('select');
+    return{emoji:inputs[0].value.trim(),label:inputs[1].value.trim(),link:inputs[2].value.trim(),style:sel.value};
+  }).filter(b=>b.label);
+  const ok1=await upsert('custom_buttons',buttons);
+  const ok2=await upsert('custom_buttons_tag',g('btn-sec-tag')||'🔗 Quick Links');
+  const ok3=await upsert('custom_buttons_title',g('btn-sec-title')||'Explore More');
+  toast((ok1&&ok2&&ok3)?'🔘 Buttons saved! Live now.':'❌ Error','ok');
+}
+
+// CATEGORIES
+let currentCats=['magazines','polaroids','frames'];
+const catEmojis={'magazines':'📖','polaroids':'📸','frames':'🖼️','gifts':'🎁','cards':'💌','stickers':'🏷️'};
+function addCatField(val=''){
+  const container=document.getElementById('cat-fields');
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:0.6rem;margin-bottom:0.6rem;align-items:center';
+  div.innerHTML=`<input type="text" value="${val}" placeholder="Category name (e.g. gifts)" style="flex:1;border:2px solid #e5e7eb;border-radius:8px;padding:0.65rem 0.9rem;font-family:var(--font-body);font-size:0.95rem;outline:none">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem">✕</button>`;
+  container.appendChild(div);
+}
+async function saveCats(){
+  const inputs=document.querySelectorAll('#cat-fields input');
+  const cats=Array.from(inputs).map(i=>i.value.trim().toLowerCase().replace(/\s+/g,'')).filter(Boolean);
+  if(!cats.length){toast('Add at least one category','err');return;}
+  currentCats=cats;
+  // Update product modal select
+  const sel=document.getElementById('p-cat');
+  if(sel)sel.innerHTML=cats.map(c=>`<option value="${c}">${catEmojis[c]||'🏷️'} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
+  const ok=await upsert('categories',cats);
+  toast(ok?'🏷️ Categories saved! Live now.':'❌ Error','ok');
+}
+
+// ACCOUNT SETTINGS
+async function saveAccount(){
+  const curPass=g('acc-cur-pass'),newUser=g('acc-new-user'),newPass=g('acc-new-pass'),confPass=g('acc-conf-pass');
+  if(!curPass||!newUser||!newPass){toast('Please fill all fields','err');return;}
+  if(newPass!==confPass){toast('Passwords do not match','err');return;}
+  if(newPass.length<6){toast('Password must be at least 6 characters','err');return;}
+  // Verify current password
+  const{data}=await sb.from('admin_users').select('*').eq('password_hash',curPass).single();
+  if(!data){toast('❌ Current password is wrong','err');return;}
+  const{error}=await sb.from('admin_users').update({username:newUser,password_hash:newPass}).eq('id',data.id);
+  if(error){toast('❌ Error saving: '+error.message,'err');return;}
+  toast('✅ Credentials saved! Logging out...','ok');
+  setTimeout(()=>doLogout(),2000);
+}
+
+
+// UI HELPERS
+function showT(name,el){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  if(name==='orders')loadOrders();
+  closeSB();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbo').classList.toggle('active');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbo').classList.remove('active');}
+function g(id){const e=document.getElementById(id);return e?e.value:'';}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+</script>
+</body>
+</html>
