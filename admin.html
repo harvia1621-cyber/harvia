@@ -230,6 +230,10 @@
         <div class="ph"><h2>📋 Recent Orders</h2></div>
         <div class="pb" id="ov-orders"><div class="loading"><div class="spinner"></div></div></div>
       </div>
+      <div class="panel">
+        <div class="ph"><h2>⭐ Recent Reviews</h2><small style="color:var(--text-light)">Customer product reviews</small></div>
+        <div class="pb" id="ov-reviews"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
     </div>
 
     <!-- PRODUCTS -->
@@ -702,7 +706,7 @@
         <div class="ph"><h2>Update Contact Details</h2></div>
         <div class="pb"><div class="af">
           <div class="r2">
-            <div class="fg"><label>Instagram Handle</label><input id="c-ig" type="text" placeholder="harvia_gifts"></div>
+            <div class="fg"><label>Instagram Handle</label><input id="c-ig" type="text" placeholder="harvia_gifts_"><small style="color:var(--text-light)">Enter WITHOUT @ — e.g. <strong>harvia_gifts_</strong> not @harvia_gifts_</small></div>
             <div class="fg"><label>WhatsApp Number (with +91)</label><input id="c-wa" type="text" placeholder="+919999999999"></div>
           </div>
           <div class="r2">
@@ -775,7 +779,7 @@ function doLogout(){sessionStorage.removeItem('hv');location.reload();}
 window.onload=()=>{if(sessionStorage.getItem('hv')){document.getElementById('login-screen').style.display='none';document.getElementById('dash').style.display='block';init();}};
 
 async function init(){
-  await Promise.all([loadSettings(),loadProducts(),loadOrders()]);
+  await Promise.all([loadSettings(),loadProducts(),loadOrders(),loadAdminReviews()]);
   fillForms();
   // Small delay so Google Fonts finish loading before rendering font previews
   setTimeout(()=>{buildFontGrids();buildLogoFontGrid();},600);
@@ -911,6 +915,50 @@ async function delProd(id){
 }
 
 // ORDERS
+async function loadAdminReviews(){
+  const el=document.getElementById('ov-reviews');if(!el)return;
+  const{data,error}=await sb.from('reviews').select('*').order('created_at',{ascending:false}).limit(20);
+  if(error){
+    // Table may not exist yet - show setup note
+    el.innerHTML=`<div style="background:#fef3c7;border-radius:10px;padding:1rem;border-left:4px solid #f59e0b;font-size:0.85rem">
+      <strong>⚠️ Setup needed:</strong> Create a <code>reviews</code> table in your Supabase dashboard with these columns:<br><br>
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">id</code> (uuid, primary key) &nbsp;
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">product_id</code> (text) &nbsp;
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">reviewer_name</code> (text) &nbsp;
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">rating</code> (int2) &nbsp;
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">review_text</code> (text) &nbsp;
+      <code style="background:#fff;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.82rem">created_at</code> (timestamptz)<br><br>
+      Also enable <strong>Row Level Security → Allow all</strong> or add insert/select policies.
+    </div>`;
+    return;
+  }
+  if(!data||!data.length){el.innerHTML='<p style="color:#bbb;text-align:center;padding:1rem">No reviews yet.</p>';return;}
+  // Get product names
+  const prodMap={};allProducts.forEach(p=>prodMap[p.id]=p.name);
+  el.innerHTML=data.map(r=>{
+    const stars='★'.repeat(r.rating||5)+'☆'.repeat(5-(r.rating||5));
+    const prodName=prodMap[r.product_id]||'Unknown Product';
+    return`<div style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 0;border-bottom:1px solid #f5f5f5">
+      <div style="flex:1">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.2rem">
+          <strong style="font-size:0.9rem">👤 ${r.reviewer_name||'Customer'}</strong>
+          <span style="color:#f59e0b;font-size:0.9rem">${stars}</span>
+          <span style="font-size:0.75rem;color:var(--text-light)">on <em>${prodName}</em></span>
+        </div>
+        <div style="font-size:0.85rem;color:var(--text-light);line-height:1.5">${r.review_text||''}</div>
+        <div style="font-size:0.75rem;color:#bbb;margin-top:0.2rem">${new Date(r.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      <button onclick="deleteReview('${r.id}')" style="background:none;border:none;color:#f43f5e;cursor:pointer;font-size:1rem;flex-shrink:0">🗑️</button>
+    </div>`;
+  }).join('');
+}
+async function deleteReview(id){
+  if(!confirm('Delete this review?'))return;
+  await sb.from('reviews').delete().eq('id',id);
+  toast('🗑️ Review deleted','info');
+  await loadAdminReviews();
+}
+
 async function loadOrders(){
   const{data}=await sb.from('orders').select('*').order('created_at',{ascending:false}).limit(100);
   allOrders=data||[];
