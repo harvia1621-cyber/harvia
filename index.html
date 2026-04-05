@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harvia Gifts – Make Yours Mine Beautiful</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link id="gfonts" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&family=Pacifico&family=Raleway:wght@300;400;700&family=Poppins:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Nunito:wght@300;400;700&family=Quicksand:wght@400;700&family=Cinzel:wght@400;700&family=Lobster&family=Josefin+Sans:wght@300;400;700&family=Great+Vibes&family=Merriweather:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Satisfy&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Italiana&family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Gloock&family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;700&family=DM+Sans:wght@300;400;700&family=Plus+Jakarta+Sans:wght@300;400;700&family=Outfit:wght@300;400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary:#7c3aed;--secondary:#a78bfa;--accent:#f0e6ff;--pink:#fce7f3;
+      --text:#1a1a2e;--text-light:#6b6b8a;--bg:#fdfcff;--white:#fff;
+      --font-head:'Playfair Display',serif;--font-body:'Lato',sans-serif;
+      --shadow:0 4px 24px rgba(124,58,237,0.1);--radius:16px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden}
+
+    /* ===== NAV ===== */
+    nav{position:fixed;top:0;width:100%;z-index:1000;background:rgba(253,252,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(167,139,250,0.2);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:66px}
+    .logo-wrap{display:flex;align-items:center;gap:0.5rem;cursor:pointer;text-decoration:none;flex:1}
+    .logo-img{height:44px;width:auto;display:none;object-fit:contain}
+    .logo-text{font-family:var(--font-head);font-size:1.7rem;color:var(--primary);font-style:italic;letter-spacing:-0.5px;line-height:1}
+    .nav-links{display:flex;gap:2rem;list-style:none;flex:1;justify-content:center}
+    .nav-links a{text-decoration:none;color:var(--text);font-weight:400;font-size:0.95rem;letter-spacing:0.5px;transition:color 0.2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--primary)}
+    .nav-right{display:flex;align-items:center;gap:1rem}
+    .cart-btn{background:var(--primary);color:white;border:none;padding:0.5rem 1.2rem;border-radius:50px;cursor:pointer;font-family:var(--font-body);font-size:0.9rem;display:flex;align-items:center;gap:0.5rem;transition:all 0.2s;text-decoration:none;position:relative}
+    .cart-btn:hover{background:#6d28d9;transform:translateY(-1px)}
+    .cart-count{background:#f43f5e;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;position:absolute;right:-8px;top:-8px}
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+    .hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;display:block;transition:0.3s}
+    .hamburger.active span:nth-child(1){transform:rotate(45deg) translateY(8px)}
+    .hamburger.active span:nth-child(2){opacity:0}
+    .hamburger.active span:nth-child(3){transform:rotate(-45deg) translateY(-8px)}
+    .mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:white;z-index:999;padding:1.5rem 5vw;border-bottom:2px solid var(--accent);flex-direction:column;gap:0;box-shadow:0 8px 30px rgba(0,0,0,0.1);max-height:calc(100vh - 66px);overflow-y:auto}
+    .mobile-menu.open{display:flex}
+    .mobile-menu a{text-decoration:none;color:var(--text);font-size:1rem;padding:0.9rem 0;border-bottom:1px solid #f0f0f0;font-weight:500}
+    .mobile-menu a:last-child{border-bottom:none;color:var(--primary)}
+
+    /* ===== PAGES ===== */
+    .page{display:none;padding-top:66px}
+    .page.active{display:block}
+
+    /* ===== HERO ===== */
+    .hero{min-height:calc(100vh - 66px);display:flex;align-items:center;background:linear-gradient(135deg,#fdfcff 0%,#f0e6ff 50%,#fce7f3 100%);padding:3rem 5vw;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-100px;right:-100px;width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,0.25) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+    .hero-content{max-width:580px;z-index:1}
+    .hero-badge{display:inline-block;background:var(--accent);color:var(--primary);padding:0.4rem 1.2rem;border-radius:50px;font-size:0.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem}
+    .hero h1{font-family:var(--font-head);font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.15;color:var(--text);margin-bottom:1.5rem}
+    .hero h1 span{color:var(--primary);font-style:italic}
+    .hero p{font-size:1.1rem;color:var(--text-light);line-height:1.7;margin-bottom:2.5rem;max-width:460px}
+    .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+    .btn-primary{background:var(--primary);color:white;padding:0.9rem 2.2rem;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;transition:all 0.25s;box-shadow:0 4px 20px rgba(124,58,237,0.3);display:inline-block;border:none;cursor:pointer;font-family:var(--font-body)}
+    .btn-primary:hover{background:#6d28d9;transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,0.4)}
+    .btn-secondary{border:2px solid var(--primary);color:var(--primary);padding:0.9rem 2.2rem;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;transition:all 0.25s;display:inline-block;background:transparent;cursor:pointer;font-family:var(--font-body)}
+    .btn-secondary:hover{background:var(--accent)}
+    .hero-floats{position:absolute;right:5vw;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:1fr 1fr;gap:1rem;z-index:1}
+    .hero-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(124,58,237,0.12);transition:transform 0.3s}
+    .hero-card:nth-child(even){margin-top:2rem}
+    .hero-card:hover{transform:translateY(-5px)}
+    .hero-card img{width:150px;height:130px;object-fit:cover;display:block}
+    .hero-card-label{padding:0.6rem 0.8rem;font-size:0.82rem;font-weight:700;color:var(--primary);font-family:var(--font-body)}
+
+    /* ===== CAT STRIP ===== */
+    .cat-strip{background:var(--primary);padding:1.2rem 5vw;overflow-x:auto}
+    .cat-inner{display:flex;justify-content:center;gap:4rem;flex-wrap:wrap}
+    .cat-btn{color:white;text-align:center;cursor:pointer;transition:transform 0.2s;background:none;border:none;font-family:var(--font-body);white-space:nowrap;padding:0 0.5rem}
+    .cat-btn:hover{transform:translateY(-3px)}
+    .cat-icon{font-size:1.8rem;display:block;margin-bottom:0.3rem}
+    .cat-name{font-size:0.85rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block}
+    .cat-price{font-size:0.72rem;opacity:0.75;display:block;margin-top:0.1rem}
+
+    /* ===== PRODUCTS ===== */
+    section{padding:5rem 5vw}
+    .section-header{text-align:center;margin-bottom:3.5rem}
+    .section-tag{display:inline-block;background:var(--accent);color:var(--primary);padding:0.3rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
+    .section-title{font-family:var(--font-head);font-size:clamp(1.8rem,3vw,2.6rem);color:var(--text)}
+    .section-title span{color:var(--primary);font-style:italic}
+    .section-sub{color:var(--text-light);font-size:1rem;margin-top:0.8rem}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem}
+    .product-card{background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;position:relative;cursor:pointer}
+    .product-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(124,58,237,0.18)}
+    .product-img{position:relative;height:210px;overflow:hidden}
+    .product-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
+    .product-card:hover .product-img img{transform:scale(1.05)}
+    .badge-disc{position:absolute;top:10px;left:10px;background:#f43f5e;color:white;padding:0.25rem 0.7rem;border-radius:50px;font-size:0.75rem;font-weight:700}
+    .product-info{padding:1.2rem}
+    .product-cat{font-size:0.72rem;color:var(--secondary);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.3rem}
+    .product-name{font-family:var(--font-head);font-size:1.05rem;margin-bottom:0.5rem;line-height:1.3}
+    .product-desc{font-size:0.83rem;color:var(--text-light);margin-bottom:0.9rem;line-height:1.5}
+    .product-price-row{display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem}
+    .price-new{font-size:1.3rem;font-weight:700;color:var(--primary)}
+    .price-old{font-size:0.9rem;color:#bbb;text-decoration:line-through}
+    .btn-add{width:100%;background:var(--accent);color:var(--primary);border:2px solid var(--primary);padding:0.65rem;border-radius:10px;font-family:var(--font-body);font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s}
+    .btn-add:hover{background:var(--primary);color:white}
+    .btn-buynow{width:100%;background:var(--primary);color:white;border:none;padding:0.7rem;border-radius:10px;font-family:var(--font-body);font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.5rem}
+    .btn-buynow:hover{background:#6d28d9;transform:translateY(-1px)}
+    .product-btns{display:flex;flex-direction:column;gap:0.4rem}
+    .filter-bar{display:flex;gap:0.8rem;margin-bottom:2.5rem;flex-wrap:wrap;align-items:center;overflow-x:auto}
+    .filter-btn{padding:0.5rem 1.4rem;border-radius:50px;border:2px solid rgba(124,58,237,0.3);background:transparent;cursor:pointer;font-family:var(--font-body);font-size:0.9rem;color:var(--text);transition:all 0.2s;white-space:nowrap}
+    .filter-btn.active,.filter-btn:hover{background:var(--primary);color:white;border-color:var(--primary)}
+
+    /* ===== CART PAGE STYLES ===== */
+    .cart-page-header{text-align:center;margin-bottom:2rem}
+    .cart-page-header h1{font-family:var(--font-head);font-size:2rem;margin-bottom:0.5rem}
+    .cart-page-header p{color:var(--text-light);font-size:0.95rem}
+    .cart-wrapper{display:grid;grid-template-columns:1fr 300px;gap:2rem;max-width:1100px;margin:0 auto}
+    .cart-items-container{background:white;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
+    .cart-item{display:grid;grid-template-columns:80px 1fr auto;gap:1.2rem;padding:1.2rem;border:1px solid #f0f0f0;border-radius:10px;align-items:center;margin-bottom:1rem}
+    .cart-item-img{width:80px;height:80px;object-fit:cover;border-radius:8px}
+    .cart-item-info h3{font-size:1rem;margin-bottom:0.3rem;font-family:var(--font-head)}
+    .cart-item-info p{font-size:0.85rem;color:var(--text-light);margin-bottom:0.5rem}
+    .cart-item-price{font-weight:700;color:var(--primary);margin-bottom:0.5rem}
+    .cart-item-qty{display:flex;align-items:center;gap:0.5rem;border:1px solid #ddd;border-radius:6px;width:fit-content}
+    .cart-item-qty button{background:none;border:none;padding:0.3rem 0.6rem;cursor:pointer;font-weight:700;color:var(--primary)}
+    .cart-item-qty span{padding:0.3rem 0.6rem;min-width:30px;text-align:center}
+    .cart-item-remove{background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:700}
+    .empty-cart{text-align:center;padding:3rem 1rem;color:var(--text-light)}
+    .empty-cart-icon{font-size:3rem;margin-bottom:1rem}
+    .empty-cart p{margin-bottom:1.5rem}
+    .continue-shopping-btn{background:var(--primary);color:white;padding:0.8rem 2rem;border-radius:50px;text-decoration:none;display:inline-block;font-weight:700}
+    .cart-summary{background:white;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);height:fit-content;position:sticky;top:80px}
+    .summary-line{display:flex;justify-content:space-between;margin-bottom:0.8rem;font-size:0.95rem}
+    .summary-line.total{border-top:2px solid #f0f0f0;padding-top:1rem;margin-top:1rem;font-weight:700;font-size:1.1rem;color:var(--primary)}
+    .checkout-btn{width:100%;background:var(--primary);color:white;border:none;padding:0.9rem;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-top:1rem;transition:all 0.2s}
+    .checkout-btn:hover{background:#6d28d9;transform:translateY(-1px)}
+    .checkout-btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
+
+    /* ===== TOASTS ===== */
+    .toast{position:fixed;bottom:2rem;right:2rem;background:var(--primary);color:white;padding:1rem 1.5rem;border-radius:10px;box-shadow:0 10px 30px rgba(124,58,237,0.3);z-index:10000;animation:slideIn 0.3s ease;font-weight:600}
+    @keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    /* ===== MODAL ===== */
+    .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:1rem}
+    .modal.open{display:flex}
+    .modal-content{background:white;border-radius:20px;padding:2rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.3)}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer}
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:768px){
+      nav{padding:0 4vw;height:56px}
+      .logo-text{font-size:1.3rem}
+      .nav-links{display:none}
+      .nav-right{gap:0.5rem}
+      .cart-btn{padding:0.4rem 0.8rem;font-size:0.8rem}
+      .hamburger{display:flex}
+      .hero{padding:2rem 4vw}
+      .hero-floats{display:none}
+      .hero h1{font-size:clamp(1.6rem,4vw,2.4rem)}
+      .hero p{font-size:1rem}
+      .hero-btns{flex-direction:column;gap:0.8rem}
+      .btn-primary,.btn-secondary{width:100%}
+      section{padding:3rem 4vw}
+      .products-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem}
+      .cat-strip{overflow-x:auto}
+      .cat-inner{gap:2rem;min-width:fit-content}
+      .cart-wrapper{grid-template-columns:1fr;gap:1.5rem}
+      .cart-summary{position:static;top:auto}
+      .cart-item{grid-template-columns:70px 1fr;gap:1rem}
+      .cart-item-img{width:70px;height:70px}
+      .cart-item>:last-child{grid-column:1/-1}
+      .toast{bottom:1rem;right:1rem;left:1rem;right:auto}
+      .page{padding-top:56px}
+    }
+    @media(max-width:480px){
+      nav{padding:0 3vw}
+      .logo-text{font-size:1.1rem}
+      section{padding:2rem 3vw}
+      .products-grid{grid-template-columns:repeat(2,1fr);gap:0.8rem}
+      .product-card{margin:0}
+      .hero-badge{font-size:0.7rem;padding:0.3rem 0.8rem}
+      .hero h1{font-size:1.8rem;margin-bottom:1rem}
+      .hero p{font-size:0.95rem}
+      .cart-wrapper{padding:0}
+      .cart-item{grid-template-columns:60px 1fr;gap:0.8rem}
+      .cart-item-img{width:60px;height:60px}
+      .modal-content{padding:1.5rem}
+      .cart-summary{padding:1rem}
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="#" class="logo-wrap" onclick="goPage('home');return false">
+      <span class="logo-text">Harvia</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#" onclick="goPage('home');return false">Home</a></li>
+      <li><a href="#" onclick="goPage('products');return false">Shop</a></li>
+      <li><a href="#" onclick="goPage('about');return false">About</a></li>
+      <li><a href="#" onclick="goPage('contact');return false">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="#" class="cart-btn" onclick="goPage('cart');return false">
+        🛒 Cart
+        <span class="cart-count" id="cart-count" style="display:none">0</span>
+      </a>
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#" onclick="goPage('home');closeMobileMenu();return false">Home</a>
+    <a href="#" onclick="goPage('products');closeMobileMenu();return false">Shop</a>
+    <a href="#" onclick="goPage('cart');closeMobileMenu();return false">🛒 Cart</a>
+    <a href="#" onclick="goPage('about');closeMobileMenu();return false">About</a>
+    <a href="#" onclick="goPage('contact');closeMobileMenu();return false">Contact</a>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div id="home" class="page active">
+    <section class="hero">
+      <div class="hero-content">
+        <span class="hero-badge">Welcome to Harvia</span>
+        <h1>Make Yours <span>Mine Beautiful</span></h1>
+        <p>Discover personalized gifts that celebrate your unique moments. Handpicked, carefully crafted, and made with love.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="goPage('products')">Explore Now</button>
+          <button class="btn-secondary" onclick="goPage('about')">Learn More</button>
+        </div>
+      </div>
+      <div class="hero-floats" id="hero-floats"></div>
+    </section>
+
+    <div class="cat-strip">
+      <div class="cat-inner" id="cat-strip"></div>
+    </div>
+
+    <section>
+      <div class="section-header">
+        <span class="section-tag">New Arrivals</span>
+        <h2 class="section-title">Trending <span>Gifts</span></h2>
+        <p class="section-sub">Discover our latest personalized collection</p>
+      </div>
+      <div id="trending-grid" class="products-grid"></div>
+    </section>
+  </div>
+
+  <!-- PRODUCTS PAGE -->
+  <div id="products" class="page">
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">Shop Our <span>Collection</span></h2>
+        <p class="section-sub">Find the perfect personalized gift</p>
+      </div>
+      <div id="filter-bar" class="filter-bar"></div>
+      <div id="products-grid" class="products-grid"></div>
+    </section>
+  </div>
+
+  <!-- CART PAGE -->
+  <div id="cart" class="page">
+    <section>
+      <div class="cart-page-header">
+        <h1>Your Cart</h1>
+        <p id="cart-page-subtitle">You have <span id="cart-item-count">0</span> items</p>
+      </div>
+      <div class="cart-wrapper">
+        <div>
+          <div id="cart-items-container" class="cart-items-container"></div>
+          <div style="text-align:center;margin-top:2rem">
+            <button class="btn-primary" onclick="goPage('products')" style="width:100%">Continue Shopping</button>
+          </div>
+        </div>
+        <div id="cart-summary-container" class="cart-summary">
+          <h3 style="margin-bottom:1.5rem;font-family:var(--font-head)">Order Summary</h3>
+          <div class="summary-line">
+            <span>Subtotal:</span>
+            <span id="summary-subtotal">₹0</span>
+          </div>
+          <div class="summary-line">
+            <span>Shipping:</span>
+            <span id="summary-shipping">₹0</span>
+          </div>
+          <div class="summary-line total">
+            <span>Total:</span>
+            <span id="summary-total">₹0</span>
+          </div>
+          <button class="checkout-btn" onclick="proceedCheckout()" id="checkout-btn">Proceed to Checkout</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PRODUCT DETAIL PAGE -->
+  <div id="product" class="page">
+    <section style="max-width:1000px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+        <div>
+          <img id="pd-main-img" src="" alt="Product" style="width:100%;border-radius:16px;box-shadow:var(--shadow)">
+        </div>
+        <div>
+          <span class="section-tag" id="pd-cat"></span>
+          <h1 style="font-family:var(--font-head);font-size:2rem;margin:1rem 0;color:var(--text)" id="pd-name"></h1>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+            <span style="font-size:1.8rem;font-weight:700;color:var(--primary)" id="pd-price-new">₹0</span>
+            <span style="font-size:1rem;text-decoration:line-through;color:#bbb" id="pd-price-old"></span>
+            <span class="badge-disc" id="pd-disc-badge" style="display:none;margin:0"></span>
+          </div>
+          <p id="pd-desc" style="color:var(--text-light);line-height:1.8;margin-bottom:1.5rem"></p>
+          <div style="background:var(--accent);padding:1rem;border-radius:10px;margin-bottom:1.5rem">
+            <div style="font-size:0.9rem;margin-bottom:0.5rem"><strong>Quantity:</strong> <span id="pd-qty">1</span></div>
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+              <button onclick="pdQty(-1)" style="padding:0.5rem 1rem;background:white;border:2px solid var(--primary);color:var(--primary);border-radius:6px;cursor:pointer;font-weight:700">-</button>
+              <button onclick="pdQty(1)" style="padding:0.5rem 1rem;background:white;border:2px solid var(--primary);color:var(--primary);border-radius:6px;cursor:pointer;font-weight:700">+</button>
+            </div>
+            <div style="font-size:0.9rem"><strong>Subtotal:</strong> <span id="pd-subtotal">₹0</span></div>
+          </div>
+          <div class="product-btns">
+            <button class="btn-add" onclick="pdAddCart()">Add to Cart</button>
+            <button class="btn-buynow" onclick="pdBuyNow()">Buy Now</button>
+            <button class="btn-secondary" onclick="goPage('products')" style="width:100%;margin-top:0.5rem">Back to Products</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:4rem">
+        <h2 style="font-family:var(--font-head);font-size:1.5rem;margin-bottom:2rem">Reviews</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+          <div>
+            <div id="pd-reviews-grid"></div>
+          </div>
+          <div style="background:var(--accent);padding:1.5rem;border-radius:12px">
+            <h3 style="font-family:var(--font-head);margin-bottom:1.5rem">Write a Review</h3>
+            <div style="display:flex;flex-direction:column;gap:1rem">
+              <input type="text" id="rv-name" placeholder="Your Name" style="padding:0.7rem;border:2px solid var(--primary);border-radius:8px;font-family:var(--font-body)">
+              <div id="star-picker" style="display:flex;gap:0.5rem;font-size:1.8rem">
+                <span onclick="setReviewStar(1)" style="cursor:pointer">☆</span>
+                <span onclick="setReviewStar(2)" style="cursor:pointer">☆</span>
+                <span onclick="setReviewStar(3)" style="cursor:pointer">☆</span>
+                <span onclick="setReviewStar(4)" style="cursor:pointer">☆</span>
+                <span onclick="setReviewStar(5)" style="cursor:pointer">☆</span>
+              </div>
+              <textarea id="rv-text" placeholder="Your review (optional)" style="padding:0.7rem;border:2px solid var(--primary);border-radius:8px;font-family:var(--font-body);resize:vertical;min-height:100px"></textarea>
+              <button class="btn-primary" onclick="submitReview()" style="width:100%">Submit Review</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABOUT PAGE -->
+  <div id="about" class="page">
+    <section style="max-width:900px;margin:0 auto">
+      <h1 style="font-family:var(--font-head);font-size:2.5rem;margin-bottom:2rem;text-align:center">About <span style="color:var(--primary);font-style:italic">Harvia</span></h1>
+      <p style="font-size:1.05rem;line-height:1.8;margin-bottom:1.5rem;color:var(--text-light)">
+        At Harvia Gifts, we believe that the perfect gift tells a story. Our mission is to create personalized, meaningful gifts that celebrate life's special moments and the people who make them memorable.
+      </p>
+      <p style="font-size:1.05rem;line-height:1.8;margin-bottom:1.5rem;color:var(--text-light)">
+        Every product is carefully handpicked and crafted with attention to detail. We partner with skilled artisans to bring your vision to life, ensuring that each gift is as unique as the person receiving it.
+      </p>
+      <p style="font-size:1.05rem;line-height:1.8;color:var(--text-light)">
+        From personalized photo frames to custom-engraved jewelry, we offer a curated collection designed to make every moment beautiful.
+      </p>
+    </section>
+  </div>
+
+  <!-- CONTACT PAGE -->
+  <div id="contact" class="page">
+    <section style="max-width:900px;margin:0 auto">
+      <h1 style="font-family:var(--font-head);font-size:2.5rem;margin-bottom:2rem;text-align:center">Get in Touch</h1>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+        <div>
+          <h3 style="font-family:var(--font-head);margin-bottom:1rem">Contact Us</h3>
+          <p style="margin-bottom:1rem"><strong>Email:</strong> hello@harvia.com</p>
+          <p style="margin-bottom:1rem"><strong>Phone:</strong> +91 98765 43210</p>
+          <p><strong>Hours:</strong> Mon - Fri, 9 AM - 6 PM IST</p>
+        </div>
+        <form onsubmit="handleContactForm(event)" style="display:flex;flex-direction:column;gap:1rem">
+          <input type="text" placeholder="Your Name" required style="padding:0.8rem;border:2px solid var(--accent);border-radius:8px;font-family:var(--font-body)">
+          <input type="email" placeholder="Your Email" required style="padding:0.8rem;border:2px solid var(--accent);border-radius:8px;font-family:var(--font-body)">
+          <textarea placeholder="Message" rows="4" required style="padding:0.8rem;border:2px solid var(--accent);border-radius:8px;font-family:var(--font-body)"></textarea>
+          <button type="submit" class="btn-primary">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- FLOATING BUTTONS -->
+  <a href="#" id="wa-float" style="position:fixed;bottom:2rem;left:2rem;width:56px;height:56px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;z-index:100;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.2)" title="Chat on WhatsApp">💬</a>
+
+<script>
+  // ===== CONSTANTS & SETUP =====
+  const supabaseUrl='https://svwfkwrqufhvhryvsxfx.supabase.co';
+  const supabaseKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2d2Zrd3JxdWZodmhyeXZzeGZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0MTUzODUsImV4cCI6MjA0Njk5MTM4NX0.TbuFJ8sZnaPKvPOZkRVdl9R5Hc5y3P8FcgVG8sDEATg';
+  const waNumber='919876543210';
+  const sb=supabase.createClient(supabaseUrl,supabaseKey);
+  let allProducts=[],cart=[],currentFilter='all',pdProduct=null,pdQtyVal=1,pdReviewStar=0;
+
+  async function init(){
+    await loadProducts();
+    renderHome();
+    renderProducts();
+    restoreCart();
+    renderCart();
+  }
+
+  async function loadProducts(){
+    const{data,error}=await sb.from('products').select('*').order('created_at',{ascending:false});
+    if(!error&&data)allProducts=data;
+  }
+
+  function calcFinal(p){return Math.round(p.price*(1-p.discount_percent/100));}
+
+  function goPage(p){
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.getElementById(p).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function toggleMobileMenu(){
+    const menu=document.getElementById('mobile-menu');
+    const btn=document.getElementById('hamburger-btn');
+    menu.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+
+  function closeMobileMenu(){
+    document.getElementById('mobile-menu').classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('active');
+  }
+
+  function renderHome(){
+    const trending=allProducts.slice(0,6);
+    document.getElementById('trending-grid').innerHTML=trending.map(p=>`
+      <div class="product-card" onclick="openProductDetail('${p.id}')">
+        <div class="product-img">
+          <img src="${p.image_url||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400'}" alt="${p.name}">
+          ${p.discount_percent>0?`<span class="badge-disc">-${p.discount_percent}%</span>`:''}
+        </div>
+        <div class="product-info">
+          <span class="product-cat">${p.category}</span>
+          <h3 class="product-name">${p.name}</h3>
+          <p class="product-desc">${(p.description||'').substring(0,60)}...</p>
+          <div class="product-price-row">
+            <span class="price-new">₹${calcFinal(p)}</span>
+            ${p.discount_percent>0?`<span class="price-old">₹${parseFloat(p.price)}</span>`:''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('cat-strip').innerHTML=Array.from(new Set(allProducts.map(p=>p.category))).slice(0,5).map(c=>`
+      <button class="cat-btn" onclick="filterProducts('${c}');closeMobileMenu()">
+        <span class="cat-icon">🎁</span>
+        <span class="cat-name">${c}</span>
+      </button>
+    `).join('');
+
+    document.getElementById('hero-floats').innerHTML=allProducts.slice(0,4).map(p=>`
+      <div class="hero-card" onclick="openProductDetail('${p.id}')">
+        <img src="${p.image_url||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=150'}" alt="">
+        <div class="hero-card-label">${p.name.substring(0,20)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderProducts(){
+    const filtered=currentFilter==='all'?allProducts:allProducts.filter(p=>p.category===currentFilter);
+    const cats=Array.from(new Set(allProducts.map(p=>p.category)));
+    document.getElementById('filter-bar').innerHTML=`<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="filterProducts('all')">All</button>`+cats.map(c=>`<button class="filter-btn ${currentFilter===c?'active':''}" onclick="filterProducts('${c}')">${c}</button>`).join('');
+    document.getElementById('products-grid').innerHTML=filtered.map(p=>`
+      <div class="product-card" onclick="openProductDetail('${p.id}')">
+        <div class="product-img">
+          <img src="${p.image_url||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400'}" alt="${p.name}">
+          ${p.discount_percent>0?`<span class="badge-disc">-${p.discount_percent}%</span>`:''}
+        </div>
+        <div class="product-info">
+          <span class="product-cat">${p.category}</span>
+          <h3 class="product-name">${p.name}</h3>
+          <p class="product-desc">${(p.description||'').substring(0,60)}...</p>
+          <div class="product-price-row">
+            <span class="price-new">₹${calcFinal(p)}</span>
+            ${p.discount_percent>0?`<span class="price-old">₹${parseFloat(p.price)}</span>`:''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterProducts(c){
+    currentFilter=c;
+    renderProducts();
+  }
+
+  function saveCart(){
+    localStorage.setItem('harvia_cart',JSON.stringify(cart));
+  }
+
+  function restoreCart(){
+    const saved=localStorage.getItem('harvia_cart');
+    if(saved)cart=JSON.parse(saved);
+    updateCartCount();
+  }
+
+  function updateCartCount(){
+    const count=cart.reduce((s,i)=>s+i.qty,0);
+    const badge=document.getElementById('cart-count');
+    if(count>0){
+      badge.textContent=count;
+      badge.style.display='flex';
+    }else{
+      badge.style.display='none';
+    }
+  }
+
+  function renderCart(){
+    const container=document.getElementById('cart-items-container');
+    if(cart.length===0){
+      container.innerHTML=`<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>Your cart is empty</p><a href="#" class="continue-shopping-btn" onclick="goPage('products');return false">Start Shopping</a></div>`;
+      document.getElementById('cart-summary-container').innerHTML='<div style="text-align:center;padding:2rem"><p>No items to summarize</p></div>';
+      return;
+    }
+    let subtotal=0;
+    container.innerHTML=cart.map((item,i)=>{
+      const total=item.price*item.qty;
+      subtotal+=total;
+      return`<div class="cart-item">
+        <img src="${item.image||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=150'}" alt="${item.name}" class="cart-item-img">
+        <div class="cart-item-info">
+          <h3>${item.name}</h3>
+          <p>${item.category}</p>
+          <div class="cart-item-price">₹${item.price}</div>
+          <div class="cart-item-qty">
+            <button onclick="updateCartQty(${i},-1)">-</button>
+            <span>${item.qty}</span>
+            <button onclick="updateCartQty(${i},1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${i})">Remove</button>
+      </div>`;
+    }).join('');
+    
+    const shipping=subtotal>500?0:100;
+    const total=subtotal+shipping;
+    document.getElementById('summary-subtotal').textContent=`₹${subtotal}`;
+    document.getElementById('summary-shipping').textContent=`${shipping===0?'FREE':' ₹'+shipping}`;
+    document.getElementById('summary-total').textContent=`₹${total}`;
+    document.getElementById('cart-item-count').textContent=cart.reduce((s,i)=>s+i.qty,0);
+    updateCartCount();
+  }
+
+  function updateCartQty(i,d){
+    cart[i].qty=Math.max(1,cart[i].qty+d);
+    saveCart();
+    renderCart();
+  }
+
+  function removeFromCart(i){
+    cart.splice(i,1);
+    saveCart();
+    renderCart();
+    showToast('Removed from cart');
+  }
+
+  function proceedCheckout(){
+    showToast('Redirecting to checkout...');
+    setTimeout(()=>{window.location.href='https://www.example-payment.com';},1000);
+  }
+
+  async function openProductDetail(id){
+    const p=allProducts.find(x=>x.id===id);
+    if(!p)return;
+    pdProduct=p;
+    pdQtyVal=1;
+    pdReviewStar=0;
+    const fp=calcFinal(p),hasDisc=p.discount_percent>0;
+    const img=p.image_url||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600';
+    document.getElementById('pd-main-img').src=img;
+    document.getElementById('pd-cat').textContent=p.category;
+    document.getElementById('pd-name').textContent=p.name;
+    document.getElementById('pd-price-new').textContent=`₹${fp}`;
+    document.getElementById('pd-desc').textContent=p.description||'';
+    document.getElementById('pd-qty').textContent=1;
+    document.getElementById('pd-subtotal').textContent=`₹${fp}`;
+    const oldEl=document.getElementById('pd-price-old'),discEl=document.getElementById('pd-disc-badge');
+    if(hasDisc){oldEl.textContent=`₹${parseFloat(p.price)}`;oldEl.style.display='inline';discEl.textContent=`-${p.discount_percent}%`;discEl.style.display='inline';}
+    else{oldEl.style.display='none';discEl.style.display='none';}
+    document.getElementById('rv-name').value='';
+    document.getElementById('rv-text').value='';
+    document.querySelectorAll('#star-picker span').forEach(s=>s.classList.remove('lit'));
+    pdReviewStar=0;
+    await loadProductReviews(id);
+    goPage('product');
+  }
+
+  function pdQty(d){
+    pdQtyVal=Math.max(1,pdQtyVal+d);
+    document.getElementById('pd-qty').textContent=pdQtyVal;
+    document.getElementById('pd-subtotal').textContent=`₹${pdQtyVal*calcFinal(pdProduct)}`;
+  }
+
+  function pdAddCart(){
+    if(!pdProduct)return;
+    const ex=cart.find(i=>i.id===pdProduct.id);
+    if(ex)ex.qty+=pdQtyVal;
+    else cart.push({id:pdProduct.id,name:pdProduct.name,price:calcFinal(pdProduct),image:pdProduct.image_url||'',qty:pdQtyVal,category:pdProduct.category});
+    saveCart();
+    renderCart();
+    showToast('🛒 Added to cart!');
+  }
+
+  function pdBuyNow(){
+    if(!pdProduct)return;
+    pdAddCart();
+    goPage('cart');
+  }
+
+  async function loadProductReviews(productId){
+    const grid=document.getElementById('pd-reviews-grid');
+    grid.innerHTML='<p style="color:var(--text-light)">Loading reviews...</p>';
+    const{data,error}=await sb.from('product_reviews').select('*').eq('product_id',productId).order('created_at',{ascending:false});
+    if(error||!data||!data.length){
+      grid.innerHTML='<p style="color:var(--text-light)">No reviews yet. Be the first to review!</p>';
+      return;
+    }
+    const avg=(data.reduce((s,r)=>s+r.rating,0)/data.length).toFixed(1);
+    grid.innerHTML=data.map(r=>`<div style="background:white;padding:1rem;border-radius:10px;margin-bottom:1rem">
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+        <strong>${r.reviewer_name||'Anonymous'}</strong>
+        <span style="font-size:0.9rem;color:var(--text-light)">${new Date(r.created_at).toLocaleDateString()}</span>
+      </div>
+      <div style="color:#ffc107;margin-bottom:0.5rem">{'⭐'.repeat(Math.round(r.rating))}{'☆'.repeat(Math.max(0,5-Math.round(r.rating)))}</div>
+      ${r.review_text?`<p style="font-size:0.95rem;color:var(--text-light)">${r.review_text}</p>`:''}
+    </div>`).join('');
+  }
+
+  function setReviewStar(n){
+    pdReviewStar=n;
+    document.querySelectorAll('#star-picker span').forEach((s,i)=>s.textContent=i<n?'⭐':'☆');
+  }
+
+  async function submitReview(){
+    if(!pdProduct){showToast('No product selected');return;}
+    const name=document.getElementById('rv-name').value.trim();
+    const text=document.getElementById('rv-text').value.trim();
+    if(!name){showToast('Please enter your name');return;}
+    if(!pdReviewStar){showToast('Please select a star rating');return;}
+    const{error}=await sb.from('product_reviews').insert([{product_id:pdProduct.id,reviewer_name:name,rating:pdReviewStar,review_text:text}]);
+    if(error){
+      showToast('⚠️ Reviews table needed in Supabase');
+      console.warn('CREATE TABLE IF NOT EXISTS product_reviews (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), product_id uuid REFERENCES products(id) ON DELETE CASCADE, reviewer_name text, rating int, review_text text, created_at timestamptz DEFAULT now());');
+      return;
+    }
+    showToast('🌟 Thank you for your review!');
+    document.getElementById('rv-name').value='';
+    document.getElementById('rv-text').value='';
+    document.querySelectorAll('#star-picker span').forEach(s=>s.textContent='☆');
+    pdReviewStar=0;
+    await loadProductReviews(pdProduct.id);
+  }
+
+  function showToast(msg){
+    const t=document.createElement('div');
+    t.className='toast';
+    t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),3000);
+  }
+
+  function handleContactForm(e){
+    e.preventDefault();
+    showToast('Thank you! We\'ll be in touch soon.');
+    e.target.reset();
+  }
+
+  document.getElementById('wa-float').href=`https://wa.me/${waNumber.replace(/\D/g,'')}?text=Hi Harvia Gifts! 💜`;
+  init();
+</script>
+</body>
+</html>
