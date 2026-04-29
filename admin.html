@@ -176,6 +176,24 @@
     <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn-login" onclick="doLogin()">Sign In →</button>
     <div class="lerr" id="lerr">❌ Wrong username or password</div>
+    <div style="margin-top:1.2rem"><a href="#" onclick="showForgot(event)" style="color:#7c3aed;font-size:0.85rem;text-decoration:none;font-weight:600">🔑 Forgot Username / Password?</a></div>
+  </div>
+</div>
+
+<!-- FORGOT CREDENTIALS MODAL -->
+<div id="forgot-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:24px;padding:2.5rem;width:360px;max-width:95vw;box-shadow:0 30px 80px rgba(0,0,0,0.4);text-align:center">
+    <div style="font-size:2rem;margin-bottom:0.5rem">🔑</div>
+    <h2 style="font-family:var(--font-head,serif);color:#7c3aed;margin-bottom:0.3rem;font-size:1.4rem">Reset Credentials</h2>
+    <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.5rem">Enter the secret recovery word to reset your admin username and password back to the defaults.</p>
+    <div style="text-align:left;margin-bottom:1rem">
+      <label style="font-weight:700;font-size:0.85rem;color:#374151;display:block;margin-bottom:0.4rem">Recovery Word</label>
+      <input type="text" id="forgot-word" placeholder="Enter recovery word" style="width:100%;border:2px solid #e5e7eb;border-radius:10px;padding:0.75rem 1rem;font-size:1rem;box-sizing:border-box;outline:none;transition:border 0.2s" onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'" onkeydown="if(event.key==='Enter')doForgotReset()">
+    </div>
+    <div id="forgot-err" style="display:none;color:#dc2626;font-size:0.85rem;margin-bottom:0.8rem">❌ Incorrect recovery word. Please try again.</div>
+    <div id="forgot-ok" style="display:none;color:#16a34a;font-size:0.85rem;margin-bottom:0.8rem">✅ Credentials reset! Username: <b>HARISH</b> &amp; Password: <b>HARVIA</b></div>
+    <button onclick="doForgotReset()" style="width:100%;background:#7c3aed;color:white;border:none;padding:0.9rem;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:0.75rem;transition:background 0.2s" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'">Reset Now</button>
+    <button onclick="hideForgot()" style="width:100%;background:#f3f4f6;color:#374151;border:none;padding:0.8rem;border-radius:12px;font-size:0.95rem;font-weight:600;cursor:pointer">Cancel</button>
   </div>
 </div>
 
@@ -776,6 +794,34 @@ async function doLogin(){
   else document.getElementById('lerr').style.display='block';
 }
 function doLogout(){sessionStorage.removeItem('hv');location.reload();}
+
+function showForgot(e){
+  if(e)e.preventDefault();
+  const ov=document.getElementById('forgot-overlay');
+  ov.style.display='flex';
+  document.getElementById('forgot-word').value='';
+  document.getElementById('forgot-err').style.display='none';
+  document.getElementById('forgot-ok').style.display='none';
+  setTimeout(()=>document.getElementById('forgot-word').focus(),100);
+}
+function hideForgot(){
+  document.getElementById('forgot-overlay').style.display='none';
+}
+async function doForgotReset(){
+  const word=document.getElementById('forgot-word').value.trim();
+  document.getElementById('forgot-err').style.display='none';
+  document.getElementById('forgot-ok').style.display='none';
+  if(word!=='Harishkaviya'){
+    document.getElementById('forgot-err').style.display='block';
+    return;
+  }
+  const{data,error}=await sb.from('admin_users').select('id').limit(1).single();
+  if(error||!data){document.getElementById('forgot-err').style.display='block';return;}
+  const{error:upErr}=await sb.from('admin_users').update({username:'HARISH',password_hash:'HARVIA'}).eq('id',data.id);
+  if(upErr){document.getElementById('forgot-err').style.display='block';return;}
+  document.getElementById('forgot-ok').style.display='block';
+  setTimeout(()=>hideForgot(),3500);
+}
 window.onload=()=>{if(sessionStorage.getItem('hv')){document.getElementById('login-screen').style.display='none';document.getElementById('dash').style.display='block';init();}};
 
 async function init(){
