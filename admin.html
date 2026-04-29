@@ -822,7 +822,15 @@ async function doForgotReset(){
   document.getElementById('forgot-ok').style.display='block';
   setTimeout(()=>hideForgot(),3500);
 }
-window.onload=()=>{if(sessionStorage.getItem('hv')){document.getElementById('login-screen').style.display='none';document.getElementById('dash').style.display='block';init();}};
+window.onload=async()=>{
+  if(sessionStorage.getItem('hv')){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('dash').style.display='block';
+    try{await init();}catch(e){console.error('Admin init error:',e);}
+  } else {
+    document.getElementById('login-screen').style.display='flex';
+  }
+};
 
 async function init(){
   await Promise.all([loadSettings(),loadProducts(),loadOrders(),loadAdminReviews()]);
