@@ -183,35 +183,9 @@
     .ts-dot.active{background:white;border-color:var(--primary);color:var(--primary)}
     .ts-label{font-size:0.72rem;text-align:center;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
 
-    /* CART ADDED TOAST (small, auto-closes in 1s) */
-    .cart-popup{position:fixed;bottom:5rem;right:1.2rem;z-index:2000;background:var(--primary);color:white;border-radius:50px;padding:0.7rem 1.4rem;font-size:0.9rem;font-weight:700;transform:translateY(20px);opacity:0;pointer-events:none;transition:all 0.25s;box-shadow:0 4px 20px rgba(124,58,237,0.35);display:flex;align-items:center;gap:0.5rem;white-space:nowrap}
-    .cart-popup.show{transform:translateY(0);opacity:1}
-    /* CART PAGE */
-    .cart-page-wrap{max-width:900px;margin:0 auto;padding:2rem 5vw}
-    .cart-page-title{font-family:var(--font-head);font-size:2rem;color:var(--text);margin-bottom:2rem;display:flex;align-items:center;gap:0.8rem}
-    .cart-page-empty{text-align:center;padding:5rem 2rem;color:var(--text-light)}
-    .cart-page-empty span{font-size:4rem;display:block;margin-bottom:1rem}
-    .cart-page-item{background:white;border-radius:16px;padding:1.2rem;margin-bottom:1rem;box-shadow:var(--shadow);display:flex;gap:1.2rem;align-items:center}
-    .cart-page-item img{width:90px;height:90px;object-fit:cover;border-radius:12px;flex-shrink:0}
-    .cart-page-item-info{flex:1;min-width:0}
-    .cart-page-item-name{font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:0.2rem}
-    .cart-page-item-cat{font-size:0.75rem;color:var(--secondary);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem}
-    .cart-page-item-price{color:var(--primary);font-weight:700;font-size:1rem}
-    .cart-page-qty{display:flex;align-items:center;gap:0.6rem;margin-top:0.6rem}
-    .cart-page-qty-btn{background:var(--accent);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--primary);font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-    .cart-page-qty-btn:hover{background:var(--primary);color:white}
-    .cart-page-qty-num{font-weight:700;font-size:1rem;min-width:24px;text-align:center}
-    .cart-page-item-total{font-weight:700;font-size:1.1rem;color:var(--primary);flex-shrink:0;text-align:right}
-    .cart-page-remove{background:none;border:none;color:#f43f5e;cursor:pointer;font-size:1.3rem;flex-shrink:0;padding:0.3rem;transition:transform 0.2s}
-    .cart-page-remove:hover{transform:scale(1.2)}
-    .cart-summary{background:white;border-radius:20px;padding:1.8rem;box-shadow:var(--shadow);margin-top:1.5rem;position:sticky;bottom:1rem}
-    .cart-summary-row{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #f5f5f5;font-size:0.95rem}
-    .cart-summary-row:last-child{border-bottom:none}
-    .cart-summary-total{font-family:var(--font-head);font-size:1.4rem;color:var(--primary);font-weight:700}
-    .cart-checkout-btns{display:flex;flex-direction:column;gap:0.8rem;margin-top:1.2rem}
-    .cart-checkout-btns button{width:100%;padding:1rem;border-radius:14px;border:none;font-family:var(--font-body);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s}
-    .cart-checkout-btns button:hover{transform:translateY(-2px)}
-    @media(max-width:600px){.cart-page-item{flex-wrap:wrap}.cart-page-item img{width:70px;height:70px}}
+    /* MINI CART POPUP (shows once on add, auto-closes) */
+    .cart-popup{position:fixed;bottom:5rem;right:1.5rem;z-index:2000;background:white;border-radius:20px;box-shadow:0 8px 40px rgba(124,58,237,0.22);width:320px;max-width:92vw;transform:translateY(30px) scale(0.95);opacity:0;pointer-events:none;transition:all 0.3s cubic-bezier(.34,1.56,.64,1)}
+    .cart-popup.show{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
     .cart-popup-header{padding:1rem 1.2rem 0.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--accent)}
     .cart-popup-header h3{font-family:var(--font-head);font-size:1.1rem;color:var(--primary)}
     .cart-popup-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#999}
@@ -381,15 +355,13 @@
     <li><a href="#" onclick="goPage('about')" id="nl-about">About</a></li>
     <li><a href="#" onclick="goPage('track')" id="nl-track">Track Order</a></li>
     <li><a href="#" onclick="goPage('contact')" id="nl-contact">Contact</a></li>
-    <li><a href="#" onclick="goPage('cart')" id="nl-cart">🛒 Cart <span class="cart-count" id="cart-count-nav" style="background:#f43f5e;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;vertical-align:middle"></span></a></li>
   </ul>
   <div class="nav-right">
-    <button class="cart-btn" onclick="goPage('cart')">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
+    <button class="cart-btn" onclick="toggleCart()">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
     <button class="hamburger" onclick="toggleMobile()"><span></span><span></span><span></span></button>
   </div>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
-  <a href="#" onclick="goPage('cart');toggleMobile()">🛒 My Cart (<span id="mobile-cart-count">0</span>)</a>
   <a href="#" onclick="goPage('home');toggleMobile()">🏠 Home</a>
   <a href="#" onclick="goPage('shop');toggleMobile()">🛍️ Shop</a>
   <a href="#" onclick="goPage('about');toggleMobile()">💜 About</a>
@@ -556,35 +528,6 @@
   </section>
 </div>
 
-<!-- ======= CART PAGE ======= -->
-<div id="page-cart" class="page">
-  <div class="page-hero"><div class="section-header"><span class="section-tag">🛒 Your Cart</span><h2 class="section-title">My <span>Cart</span></h2></div></div>
-  <section>
-    <div class="cart-page-wrap">
-      <div id="cart-page-body">
-        <div class="cart-page-empty">
-          <span>🛒</span>
-          <h3 style="font-family:var(--font-head);margin-bottom:0.5rem">Your cart is empty</h3>
-          <p style="margin-bottom:1.5rem">Add some beautiful gifts to get started!</p>
-          <button class="btn-primary" onclick="goPage('shop')">Browse Products ✨</button>
-        </div>
-      </div>
-      <div id="cart-page-summary" style="display:none">
-        <div class="cart-summary">
-          <div class="cart-summary-row"><span>Subtotal</span><span id="cp-subtotal">₹0</span></div>
-          <div class="cart-summary-row"><span>Delivery</span><span style="color:#15803d;font-weight:700">FREE</span></div>
-          <div class="cart-summary-row"><span style="font-weight:700">Total</span><span class="cart-summary-total" id="cp-total">₹0</span></div>
-          <div class="cart-checkout-btns">
-            <button style="background:#25D366;color:white" onclick="orderWA()">💬 Order via WhatsApp</button>
-            <button style="background:var(--primary);color:white" onclick="openUPI()">💳 Pay via UPI</button>
-          </div>
-          <button onclick="goPage('shop')" style="width:100%;background:none;border:2px solid var(--primary);color:var(--primary);padding:0.8rem;border-radius:14px;font-family:var(--font-body);font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.5rem">← Continue Shopping</button>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
-
 <!-- FOOTER -->
 <footer>
   <div class="footer-grid">
@@ -597,7 +540,6 @@
       <ul>
         <li><a href="#" onclick="goPage('home')">Home</a></li>
         <li><a href="#" onclick="goPage('shop')">Shop</a></li>
-        <li><a href="#" onclick="goPage('cart')">🛒 My Cart</a></li>
         <li><a href="#" onclick="goPage('about')">About</a></li>
         <li><a href="#" onclick="goPage('track')">Track Order</a></li>
         <li><a href="#" onclick="goPage('contact')">Contact</a></li>
@@ -616,9 +558,20 @@
 
 <!-- CART -->
 <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-<!-- CART ADDED TOAST -->
-<div class="cart-popup" id="cart-popup">🛒 Added to cart!</div>
-<div class="cart-overlay" id="cart-overlay" style="display:none"></div>
+<!-- MINI CART POPUP -->
+<div class="cart-popup" id="cart-popup">
+  <div class="cart-popup-header">
+    <h3>🛒 Cart (<span id="cart-count">0</span>)</h3>
+    <button class="cart-popup-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-popup-body" id="cart-body"></div>
+  <div class="cart-popup-footer" id="cart-footer" style="display:none">
+    <div class="cart-popup-total"><span>Total:</span><span id="cart-total">₹0</span></div>
+    <button class="btn-wa" onclick="orderWA()">💬 Order via WhatsApp</button>
+    <button class="btn-upi" onclick="openUPI()">💳 Pay via UPI</button>
+  </div>
+</div>
+<div class="cart-overlay" id="cart-overlay"></div>
 
 <!-- PRODUCT DETAIL MODAL -->
 <div class="prod-detail-ov" id="prod-detail-modal" onclick="if(event.target===this)closeProdDetail()">
@@ -759,8 +712,7 @@ let waNumber='+919999999999',upiId='harish143@fam',upiQR='';
 async function init(){
   await loadSettings();
   await loadProducts();
-  renderCartPage();
-  saveCart(); // update badge
+  renderCart();
 }
 
 async function loadSettings(){
@@ -1065,78 +1017,26 @@ function addToCart(id){
   const p=allProducts.find(x=>x.id===id);if(!p)return;
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({id,name:p.name,price:calcFinal(p),image:p.image_url||'',qty:1,category:p.category});
-  saveCart();renderCartPage();showCartToast(p.name);
+  saveCart();renderCart();showCartPopup();
 }
-function removeFromCart(id){cart=cart.filter(i=>i.id!==id);saveCart();renderCartPage();}
-function changeQty(id,d){
-  const item=cart.find(i=>i.id===id);if(!item)return;
-  item.qty+=d;
-  if(item.qty<=0)removeFromCart(id);else{saveCart();renderCartPage();}
-}
-function saveCart(){
-  localStorage.setItem('hv_cart',JSON.stringify(cart));
-  const cnt=cart.reduce((s,i)=>s+i.qty,0);
-  document.getElementById('cart-count').textContent=cnt;
-  const mob=document.getElementById('mobile-cart-count');if(mob)mob.textContent=cnt;
-  const nav=document.getElementById('cart-count-nav');if(nav)nav.textContent=cnt>0?cnt:'';
-}
-function renderCartPage(){
-  // Update cart count badge
-  const cnt=cart.reduce((s,i)=>s+i.qty,0);
-  document.getElementById('cart-count').textContent=cnt;
-  const mob=document.getElementById('mobile-cart-count');if(mob)mob.textContent=cnt;
-  // Render full cart page
-  const body=document.getElementById('cart-page-body');
-  const summary=document.getElementById('cart-page-summary');
-  if(!body)return;
-  if(!cart.length){
-    body.innerHTML=`<div class="cart-page-empty">
-      <span>🛒</span>
-      <h3 style="font-family:var(--font-head);margin-bottom:0.5rem">Your cart is empty</h3>
-      <p style="margin-bottom:1.5rem">Add some beautiful gifts to get started!</p>
-      <button class="btn-primary" onclick="goPage('shop')">Browse Products ✨</button>
-    </div>`;
-    if(summary)summary.style.display='none';
-    return;
-  }
+function removeFromCart(id){cart=cart.filter(i=>i.id!==id);saveCart();renderCart();if(!cart.length)closeCart();}
+function changeQty(id,d){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=d;if(item.qty<=0)removeFromCart(id);else{saveCart();renderCart();}}
+function saveCart(){localStorage.setItem('hv_cart',JSON.stringify(cart));const cnt=cart.reduce((s,i)=>s+i.qty,0);document.getElementById('cart-count').textContent=cnt;}
+function renderCart(){
+  const body=document.getElementById('cart-body'),footer=document.getElementById('cart-footer');
+  document.getElementById('cart-count').textContent=cart.reduce((s,i)=>s+i.qty,0);
+  if(!cart.length){body.innerHTML=`<div style="text-align:center;padding:1.5rem;color:#999"><span style="font-size:2rem">🛒</span><p>Cart is empty</p></div>`;footer.style.display='none';return;}
   const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  body.innerHTML=cart.map(i=>`
-    <div class="cart-page-item">
-      <img src="${i.image||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200'}" alt="${i.name}" onerror="this.src='https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200'">
-      <div class="cart-page-item-info">
-        <div class="cart-page-item-cat">${i.category||''}</div>
-        <div class="cart-page-item-name">${i.name}</div>
-        <div class="cart-page-item-price">₹${i.price} each</div>
-        <div class="cart-page-qty">
-          <button class="cart-page-qty-btn" onclick="changeQty('${i.id}',-1)">−</button>
-          <span class="cart-page-qty-num">${i.qty}</span>
-          <button class="cart-page-qty-btn" onclick="changeQty('${i.id}',1)">+</button>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem">
-        <div class="cart-page-item-total">₹${i.price*i.qty}</div>
-        <button class="cart-page-remove" onclick="removeFromCart('${i.id}')">🗑️</button>
-      </div>
-    </div>`).join('');
-  if(summary){
-    summary.style.display='block';
-    document.getElementById('cp-subtotal').textContent=`₹${total}`;
-    document.getElementById('cp-total').textContent=`₹${total}`;
-  }
+  body.innerHTML=cart.map(i=>`<div class="cart-popup-item"><img src="${i.image||'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100'}" alt="${i.name}" onerror="this.src='https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100'"><div style="flex:1;min-width:0"><div class="cart-popup-item-name">${i.name}</div><div class="cart-popup-item-price">₹${i.price}</div><div class="cart-popup-item-qty"><button class="qty-btn" onclick="changeQty('${i.id}',-1)">−</button><span class="qty-num">${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}',1)">+</button></div></div><button class="cart-remove" onclick="removeFromCart('${i.id}')">🗑️</button></div>`).join('');
+  document.getElementById('cart-total').textContent=`₹${total}`;footer.style.display='block';
 }
-// Keep renderCart as alias for compatibility
-function renderCart(){renderCartPage();}
-function showCartToast(name){
+function showCartPopup(){
   clearTimeout(cartPopupTimer);
-  const el=document.getElementById('cart-popup');
-  el.textContent=`🛒 "${name}" added!`;
-  el.classList.add('show');
-  cartPopupTimer=setTimeout(()=>el.classList.remove('show'),1500);
+  document.getElementById('cart-popup').classList.add('show');
+  cartPopupTimer=setTimeout(()=>closeCart(),1000);
 }
 function closeCart(){document.getElementById('cart-popup').classList.remove('show');clearTimeout(cartPopupTimer);}
-function toggleCart(){goPage('cart');}
-// Alias for cart footer elements that no longer exist
-function renderCartFooter(){}
+function toggleCart(){const p=document.getElementById('cart-popup');p.classList.contains('show')?closeCart():showCartPopup();}
 
 // BUY NOW
 let bnProduct=null,bnQtyVal=1;
@@ -1294,7 +1194,7 @@ async function cartOrderWA(){
   const lines=cart.map(i=>`• ${i.name} × ${i.qty} = ₹${i.price*i.qty}`).join('\n');
   const msg=encodeURIComponent(`Hi Harvia Gifts! 🌸\n\nOrder ID: *${orderId}*\n\nItems:\n${lines}\n\n*Total: ₹${total}*\n\n👤 Name: ${d.name}\n📞 Phone: ${d.phone}\n📍 District: ${d.district}\n🏠 Address: ${d.address}\n\nPlease confirm my order. Thank you! 💜`);
   window.open(`https://wa.me/${waNumber.replace(/\D/g,'')}?text=${msg}`,'_blank');
-  closeCartDetails();cart=[];saveCart();renderCartPage();
+  closeCartDetails();cart=[];saveCart();renderCart();
   document.getElementById('success-order-id').textContent=`Order ID: ${orderId}`;
   document.getElementById('success-ov').classList.add('open');
 }
@@ -1334,7 +1234,7 @@ async function confirmUPI(){
     await saveOrder('upi',total,orderId,{name:d.name,phone:d.phone,address:`${d.address}, ${d.district}`});
     const lines=cart.map(i=>`• ${i.name} × ${i.qty} = ₹${i.price*i.qty}`).join('\n');
     const msg=encodeURIComponent(`Hi Harvia Gifts! 🌸\n\nOrder ID: *${orderId}*\n💳 UPI Payment Done!\n\nItems:\n${lines}\n\n*Total: ₹${total}*\n\n👤 Name: ${d.name}\n📞 Phone: ${d.phone}\n📍 District: ${d.district}\n🏠 Address: ${d.address}\n\nPlease confirm delivery. Thank you! 💜`);
-    closeUPI();window._cartPending=null;cart=[];saveCart();renderCartPage();
+    closeUPI();window._cartPending=null;cart=[];saveCart();renderCart();
     document.getElementById('success-order-id').textContent=`Order ID: ${orderId}`;
     document.getElementById('success-ov').classList.add('open');
     setTimeout(()=>window.open(`https://wa.me/${waNumber.replace(/\D/g,'')}?text=${msg}`,'_blank'),800);
@@ -1345,7 +1245,7 @@ async function confirmUPI(){
   await saveOrder('upi',total,orderId);
   const lines=cart.map(i=>`• ${i.name} × ${i.qty} = ₹${i.price*i.qty}`).join('\n');
   const msg=encodeURIComponent(`Hi Harvia Gifts! 🌸\n\nOrder ID: *${orderId}*\n💳 UPI Payment Done!\n\nItems:\n${lines}\n\n*Total Paid: ₹${total}*\nUPI: ${upiId}\n\nPlease confirm delivery. Thank you! 💜`);
-  closeUPI();cart=[];saveCart();renderCartPage();
+  closeUPI();cart=[];saveCart();renderCart();
   document.getElementById('success-order-id').textContent=`Order ID: ${orderId}`;
   document.getElementById('success-ov').classList.add('open');
   setTimeout(()=>window.open(`https://wa.me/${waNumber.replace(/\D/g,'')}?text=${msg}`,'_blank'),800);
@@ -1425,8 +1325,6 @@ function goPage(name){
     if(name==='home'||pageHistory.length===0){backBtn.classList.remove('show');pageHistory=[];}
     else backBtn.classList.add('show');
   }
-  // Re-render cart when visiting cart page
-  if(name==='cart')renderCartPage();
 }
 function goBack(){
   if(pageHistory.length===0)return;
