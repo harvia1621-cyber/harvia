@@ -1347,19 +1347,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 document.head.insertAdjacentHTML('beforeend','<style>.tracking-status-bar::after{width:var(--after-width,0%)}</style>');
 
 document.getElementById('wa-float').href=`https://wa.me/${waNumber.replace(/\D/g,'')}?text=Hi Harvia Gifts! 💜`;
-
-// Safe init — page always shows even if Supabase fails
-(async()=>{
-  try{
-    await init();
-  }catch(e){
-    console.error('Init error:',e);
-    // Show page anyway so it's not blank
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    const home=document.getElementById('page-home');
-    if(home)home.classList.add('active');
-  }
-})();
+init();
 </script>
 </body>
 </html>
